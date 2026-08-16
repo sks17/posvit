@@ -29,7 +29,7 @@ scaffolding, module and function documentation, the command-line interface, the 
 harness, and the test suite were drafted with the help of a large language model and then
 reviewed, corrected, and run by the author.
 
-The scientific content was solely made by the author
+The scientific content was solely made by the author.
 
 ## Reproducibility caveat
 
