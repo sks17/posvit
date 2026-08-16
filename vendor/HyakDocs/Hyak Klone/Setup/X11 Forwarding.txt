@@ -1,0 +1,156 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+System Architecture
+Get Started
+Join a Group
+Account Creation
+Two-Factor Authentication
+Setup
+SSH & Login Node Usage
+Intracluster SSH Keys
+SSH Port Forwarding
+X11 Forwarding
+Storage
+Start Here
+Storage on Klone
+Compute
+Start Here
+Scheduling Jobs
+Using Idle Resources
+Resource Monitoring
+GPUs
+Start Here
+NVIDIA NGC Containers
+Using Ollama on Hyak
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Hyak KloneSetupX11 Forwarding
+X11 Forwarding
+Windows
+Install an X Server on your Windows machine, we recommend VcXsrv.
+If using PuTTY, select 'Enable X11 forwarding' in Connection > SSH > X11. No further options should need to be modified. If using ConEmu, add -X to your ssh connection string while connecting to klone.
+If it is working correctly, no error regarding XAuth should be received, and running the xeyes command on the klone login node should spawn the eyes on your desktop.
+Mac
+Install XQuartz as an X Server on your Mac either through a browser or brew install xquartz.
+Add the following to your SSH Config in ~/.ssh/config on your Mac:
+Host *
+XAuthLocation /opt/X11/bin/xauth
+
+Start XQuartz via the apps page or verify it running on the apps bar, feel free to close the terminal that pops up.
+Connect to klone.hyak.uw.edu ,including the -X flag in your connection string.
+Linux
+Connect to klone.hyak.uw.edu with the -X flag included in the connection string. Make sure to test with xeyes to ensure functionality.
+Sit back, relax, and enjoy using the world's greatest kernel.
+Previous
+SSH Port Forwarding
+Next
+Start Here
+Windows
+Mac
+Linux
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

@@ -1,0 +1,183 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+System Architecture
+Get Started
+Join a Group
+Account Creation
+Two-Factor Authentication
+Setup
+SSH & Login Node Usage
+Intracluster SSH Keys
+SSH Port Forwarding
+X11 Forwarding
+Storage
+Start Here
+Storage on Klone
+Compute
+Start Here
+Scheduling Jobs
+Using Idle Resources
+Resource Monitoring
+GPUs
+Start Here
+NVIDIA NGC Containers
+Using Ollama on Hyak
+Tillicum
+System Architecture
+Get Started
+Slurm
+Monitoring Usage
+Software Environment
+Storage
+Open OnDemand
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Start Here
+Ego4d & Ego-Exo4D
+Epic Kitchens
+FineWeb-Edu
+ImageNet
+Kinetics
+Olmo-mix-1124
+TabLib
+TCGA
+The Pile
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+TillicumSystem Architecture
+Tillicum System Architecture
+Tillicum is the University of Washington’s next-generation, GPU-accelerated computing platform designed to support cutting-edge research, teaching, and learning in AI, machine learning, data science, and scientific simulation. Designed around cutting-edge NVIDIA H200 GPUs with ultra-fast NVLink 4.0 interconnect and a 400 Gbps InfiniBand network, Tillicum enables researchers to move beyond the limits of traditional HPC with transformative performance and efficiency.
+
+Tillicum poster with Top500 and Green500 results.
+Data for image pulled on March 19, 2026.
+
+Get Access
+To request current pricing, begin the purchase process, or request a demo account, please complete the Tillicum Project Access Request Form.
+
+Key Features
+24 Dell XE9680 servers
+GPU Acceleration: 192 NVIDIA H200 GPUs with 141 GB memory and ultra-high-bandwidth NVLink 4.0
+High-Speed Networking: 400 Gbps NDR InfiniBand for low-latency GPU communication
+High-Performance Storage: Shared 3 PB flash storage optimized for active, high-throughput computing
+Common Datasets: Curated datasets preloaded or available upon request for AI and data science workloads
+Flexible Scheduling: Support for interactive, batch, and multi-node workloads
+Container Support: Apptainer and Docker-compatible environments
+Research Software Support: Optimized deep learning frameworks (e.g., PyTorch, TensorFlow), MPI, CUDA, and more
+Tillicum cluster image
+Component	Details
+Cluster	tillicum
+Service	Deployed August 2025, Early Access August 28-October 6, 2025, General Availability October 15 2025 -
+Operating System	Rocky 9
+Compute	1,536 CPU cores [Intel Emerald Rapids]
+Accelerators	192 GPU cards (141 GB memory per GPU) [NVIDIA Hopper – H200 SXM]
+GPU Interconnect	NVLink™ 4.0 (900 GB/s GPU-to-GPU bandwidth)
+Interconnect	400 Gbps NDR InfiniBand
+Storage	~3 PB high-performance flash storage for active computing
+Namesake	Tillicum is a word in Chinook Jargon, meaning “the people.”
+Previous
+Using Ollama on Hyak
+Next
+Get Started
+Get Access
+Key Features
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle

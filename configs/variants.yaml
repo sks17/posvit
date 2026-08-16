@@ -1,0 +1,3 @@
+plan_a: [original, mixed_same, mixed_rand, only_fg, only_bg_t]
+plan_b_extra: [mixed_next]
+mask_source_variant: only_fg

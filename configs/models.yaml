@@ -1,0 +1,93 @@
+# Package for model configurations. Each model is defined by a dictionary with the following keys:
+# - scale: model scale (e.g., vit_s, vit_b)
+# - key: unique identifier for the model variant (e.g., ape, axial, mixed)
+# - constructor: name of the constructor function to create the model
+# - module: Python module where the constructor is defined
+# - hf_repo: Hugging Face repository containing the model weights
+# - pe_type: type of positional encoding used (e.g., APE, RoPE-Axial, RoPE-Mixed)
+# - use_ape: boolean indicating whether APE is used
+# - has_rope: boolean indicating whether RoPE is used
+# For descriptions of the positional encoding types, refer to the paper linked in the README.
+
+models:
+  # ---- ViT-S/16  (array index 0-4) ----
+  - scale: vit_s
+    key: ape
+    constructor: deit_small_patch16_LS
+    module: deit.models_v2
+    hf_repo: naver-ai/deit_small_patch16_LS
+    pe_type: APE
+    use_ape: true
+    has_rope: false
+    expected_sha256: 6d0b88af01c3a05b0908f2a1a102e14a157b17c99f72d42ff68034ba497a75af
+
+  - scale: vit_s
+    key: axial
+    constructor: rope_axial_deit_small_patch16_LS
+    module: models.vit_rope
+    hf_repo: naver-ai/rope_axial_deit_small_patch16_LS
+    pe_type: RoPE-Axial
+    use_ape: false
+    has_rope: true
+    expected_sha256: baf490724098cbb1831cf9df7bb43dc0e49af03bd30226fb77a8b5e253987016
+
+  - scale: vit_s
+    key: axial_ape
+    constructor: rope_axial_ape_deit_small_patch16_LS
+    module: models.vit_rope
+    hf_repo: naver-ai/rope_axial_ape_deit_small_patch16_LS
+    pe_type: RoPE-Axial+APE
+    use_ape: true
+    has_rope: true
+    expected_sha256: 38640e647a115ba1dced551e7746e0c0c9538f50ef2a1d6ff6d57781dec0f5de
+
+  - scale: vit_s
+    key: mixed
+    constructor: rope_mixed_deit_small_patch16_LS
+    module: models.vit_rope
+    hf_repo: naver-ai/rope_mixed_deit_small_patch16_LS
+    pe_type: RoPE-Mixed
+    use_ape: false
+    has_rope: true
+    expected_sha256: null
+
+  - scale: vit_s
+    key: mixed_ape
+    constructor: rope_mixed_ape_deit_small_patch16_LS
+    module: models.vit_rope
+    hf_repo: naver-ai/rope_mixed_ape_deit_small_patch16_LS
+    pe_type: RoPE-Mixed+APE
+    use_ape: true
+    has_rope: true
+    expected_sha256: null
+
+  # ---- ViT-B/16  ----
+  - scale: vit_b
+    key: ape
+    constructor: deit_base_patch16_LS
+    module: deit.models_v2
+    hf_repo: naver-ai/deit_base_patch16_LS
+    pe_type: APE
+    use_ape: true
+    has_rope: false
+    expected_sha256: null
+
+  - scale: vit_b
+    key: mixed
+    constructor: rope_mixed_deit_base_patch16_LS
+    module: models.vit_rope
+    hf_repo: naver-ai/rope_mixed_deit_base_patch16_LS
+    pe_type: RoPE-Mixed
+    use_ape: false
+    has_rope: true
+    expected_sha256: null
+
+  - scale: vit_b
+    key: mixed_ape
+    constructor: rope_mixed_ape_deit_base_patch16_LS
+    module: models.vit_rope
+    hf_repo: naver-ai/rope_mixed_ape_deit_base_patch16_LS
+    pe_type: RoPE-Mixed+APE
+    use_ape: true
+    has_rope: true
+    expected_sha256: null

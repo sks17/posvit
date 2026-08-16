@@ -1,0 +1,19 @@
+.venv/
+
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Downloaded input data. Re-downloaded and hash-checked by `posvit acquire`.
+/data/
+
+# Raw results are regenerable and should not be tracked.
+# results/derived is committed: it holds the metrics and figures that are the evidence.
+results/raw/
+
+# Local HPC configuration and scheduler logs
+hpc/config.sh
+logs/

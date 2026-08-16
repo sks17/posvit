@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite the paper."
+title: "Positional Information Causally Constrains Background Shortcut Reliance in Vision Transformers"
+abstract: >-
+  Scaling the positional signal of eight identically trained Vision Transformer
+  checkpoints shows that attenuating positional information monotonically raises
+  background-shortcut reliance on ImageNet-9, that the encoding scheme is irrelevant,
+  and that the effect is specific to spatial information loss rather than generic
+  degradation.
+authors:
+  - family-names: Singh
+    given-names: Saksham
+license: MIT
+repository-code: ""
+url: ""
+version: "0.1.0"
+keywords:
+  - vision transformers
+  - positional encoding
+  - spurious correlation
+  - background bias
+  - ImageNet-9
+# Populated on publication.
+preferred-citation:
+  type: article
+  title: "Positional Information Causally Constrains Background Shortcut Reliance in Vision Transformers"
+  authors:
+    - family-names: Singh
+      given-names: Saksham
+  year: ""
+  journal: ""
+  doi: ""

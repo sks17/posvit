@@ -1,0 +1,162 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+System Architecture
+Get Started
+Join a Group
+Account Creation
+Two-Factor Authentication
+Setup
+SSH & Login Node Usage
+Intracluster SSH Keys
+SSH Port Forwarding
+X11 Forwarding
+Storage
+Start Here
+Storage on Klone
+Compute
+Start Here
+Scheduling Jobs
+Using Idle Resources
+Resource Monitoring
+GPUs
+Start Here
+NVIDIA NGC Containers
+Using Ollama on Hyak
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Hyak KloneSetupSSH & Login Node Usage
+SSH & Login Node Usage
+The most common method of logging into the cluster is using the command-line interface (CLI). If you're using any Linux or Linux-like system (e.g., MacOS, BSD) you probably already have a terminal installed by default. Newer versions of Windows also have a new Linux sub-system so there are also native options to bring up a local terminal.
+
+Logging into klone
+ssh UWNetID@klone.hyak.uw.edu
+
+You log into the klone.hyak.uw.edu cluster above at the terminal using your netID. You will be prompted for your password and 2FA (DUO) authentication. We don't allow ssh keys to the login node since it would be bypassing one of the factors (of 2-factor authentication).
+
+
+Monitoring & Warnings
+Login-node CPU and memory usage are closely monitored by automation. Any egregious use will result in immediate performance throttling, the severity of which escalates exponentially while the offending activity persists. Warnings describing the crossed thresholds & the extent of the throttling will be sent by our monitoring system, Arbiter2, to the email associated with your UW NetID.
+
+Acceptable Uses of the Login Node
+The klone login node (i.e. klone-login01 or klone.hyak.uw.edu) is a resource shared by all cluster users. As such, acceptable uses of this system are very limited:
+
+Downloading to or uploading from the cluster.
+File management like moving, copying, or renaming files and directories.
+Light text editing with vim or a worse text editor.
+Interacting with the Slurm scheduler, i.e. to submit jobs.
+Running Hyak-built commands like hyakalloc or hyakstorage.
+tip
+If your command would run a little slow on an inexpensive laptop from 2002, you shouldn't run it on the login node! Instead, request an interactive job on a compute node.
+
+Previous
+Two-Factor Authentication
+Next
+Intracluster SSH Keys
+Logging into klone
+Acceptable Uses of the Login Node
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

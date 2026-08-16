@@ -1,0 +1,146 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+TutorialsSlurmSyllabus
+Syllabus
+Goals & Rationale
+The main objective of this tutorial is to demystify job submission and help researchers efficiently use Hyak's computing resources for their research
+Much of the Hyak documentation is organized into bite sized instructional guides for particular software tools or concepts, but these may be too advanced for users who are brand new to High Performance Computing (HPC) and and haven't used a job scheduler before. Here we have prepared a walk-through tutorial of Slurm commands so that you can feel comfortable working independently on Hyak and tailoring tools and scripts to the needs of your research project. The advanced section of this tutorial offers an additional worked example with publicly available data for submitting interactive, single, and array jobs with Slurm (i.e., submitting multiple jobs to be performed in parallel).
+
+Video available
+
+Our ultimate goal is to prepare you as an independent user of Hyak
+Hyak's Job Scheduler - Slurm
+A job scheduler is a component or software system responsible for managing and optimizing the allocation of computing resources and tasks within a distributed computing environment. It orchestrates the execution of jobs, tasks, or processes across available resources such as CPUs, memory, and storage.
+
+Slurm: The job scheduler used on Hyak. Slurm stands for Simple Linux Utility (for) Resource Management. See Slurm documentation for detailed help using the job scheduler.
+
+Learning Objectives
+Understand the benefits of parallel computing and scheduling jobs.
+Understand how accounts and partitions determine research computing access, and the purpose and usage of the hyakalloc command.
+Understand the concept of community idle resources and the checkpoint partitions (ckpt, ckpt-g2, ckpt-all).
+Become familiar with job types and job submission, including requesting GPU jobs.
+Master monitoring the job queue.
+Course Content
+Tutorial: Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Extra Practice
+We have curated a list of Additional Resources and you will find many are relevant for this tutorial.
+
+Previous
+Building Containers
+Next
+Scheduling Jobs
+Goals & Rationale
+Learning Objectives
+Course Content
+Extra Practice
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

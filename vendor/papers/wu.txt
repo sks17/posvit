@@ -1,0 +1,693 @@
+Rethinking and Improving Relative Position Encoding for Vision Transformer
+
+         Kan Wu1,2,3,, Houwen Peng3,,, Minghao Chen3, Jianlong Fu3, Hongyang Chao1,2
+
+                                    1 School of Computer Science and Engineering, Sun Yat-sen University
+      2 The Key Laboratory of Machine Intelligence and Advanced Computing (Sun Yat-sen University), Ministry of Education
+
+                                                                3 Microsoft Research Asia
+
+                        Abstract                                    Therefore, incorporating explicit representations of position
+                                                                    information is especially important for transformer, since
+   Relative position encoding (RPE) is important for trans-         the model is otherwise entirely invariant to sequence order-
+former to capture sequence ordering of input tokens. Gen-           ing, which is undesirable for modeling structured data.
+eral efficacy has been proven in natural language process-
+ing. However, in computer vision, its efficacy is not well             There are mainly two classes of methods to encode po-
+studied and even remains controversial, e.g., whether rela-         sitional representations for transformer. One is absolute,
+tive position encoding can work equally well as absolute            while the other is relative. Absolute methods [8, 22] en-
+position? In order to clarify this, we first review exist-          code the absolute positions of input tokens from 1 to maxi-
+ing relative position encoding methods and analyze their            mum sequence length. That is, each position has an individ-
+pros and cons when applied in vision transformers. We               ual encoding vector. The encoding vector is then combined
+then propose new relative position encoding methods dedi-           with the input token to expose positional information to the
+cated to 2D images, called image RPE (iRPE). Our methods            model. On the other hand, relative position methods [4, 17]
+consider directional relative distance modeling as well as          encode the relative distance between input elements and
+the interactions between queries and relative position em-          learn the pairwise relations of tokens. Relative position
+beddings in self-attention mechanism. The proposed iRPE             encoding (RPE) is commonly calculated via a look-up ta-
+methods are simple and lightweight. They can be eas-                ble with learnable parameters interacting with queries and
+ily plugged into transformer blocks. Experiments demon-             keys in self-attention modules [17]. Such scheme allows the
+strate that solely due to the proposed encoding methods,            modules to capture very long dependencies between tokens.
+DeiT [21] and DETR [1] obtain up to 1.5% (top-1 Acc)                Relative position encoding has been verified to be effective
+and 1.3% (mAP) stable improvements over their original              in natural language processing [4, 6, 15, 25]. However, in
+versions on ImageNet and COCO respectively, without tun-            computer vision, the efficacy is still unclear. There are few
+ing any extra hyperparameters such as learning rate and             recent works [3, 7, 18] shedding light on it, but obtaining
+weight decay. Our ablation and analysis also yield in-              controversial conclusions in vision transformers. For exam-
+teresting findings, some of which run counter to previ-             ple, Dosovitskiy et al. [7] observed that the relative position
+ous understanding. Code and models are open-sourced at              encoding does not bring any gain comparing to the abso-
+https://github.com/microsoft/Cream/tree/main/iRPE.                  lute one (please refer to Tab. 8 in [7]). On the contrary,
+                                                                    Srinivas et al. [18] found that relative position encoding can
+1. Introduction                                                     induce an apparent gain, being superior to the absolute one
+                                                                    (please refer to Tab. 4 in [18]). Moreover, the mostly recent
+   Transformer recently has drawn great attention in com-           work [3] claims that the relative positional encoding cannot
+puter vision because of its competitive performance and su-         work equally well as the absolute ones (please refer to Tab.
+perior capability in capturing long-range dependencies [1,          5 in [3]). These works draw different conclusions on the
+2, 7, 21, 24]. The core of transformer is self-attention [22],      effectiveness of relative position encoding in models, that
+which is capable of modeling the relationship of tokens in          motivates us to rethink and improve the usage of relative
+a sequence. Self-attention, however, has an inherent defi-          positional encoding in vision transformer.
+ciency -- it cannot capture the ordering of input tokens.
+                                                                       On the other hand, the original relative position encoding
+     Equal contributions. Work performed when Kan and Minghao were  is proposed for language modeling, where the input data is
+interns of MSRA.  Corresponding author: houwen.peng@microsoft.com   1D word sequences [4, 17, 22]. But for vision tasks, the
+                                                                    inputs are usually 2D images or video sequences, where
+                                                                    the pixels are highly spatially structured. It is unclear that:
+
+                                                                    10033
+whether the naive extension from 1D to 2D is suitable for         where eij is calculated using a scaled dot-product attention:
+vision models; whether the directional information is im-
+portant in vision tasks?                                                         eij  =   (xiWQ)(xj WK )T  .               (3)
+                                                                                                     dz
+   In this paper, we first review existing relative position en-
+coding methods, and then propose new methods dedicated            Here, the projections WQ, WK , WV  Rdx×dz are pa-
+to 2D images. We make the following contributions.                rameter matrices, which are unique per layer.
+
+· We analyze several key factors in relative position en-            Rather than computing the self-attention once, Multi-
+  coding, including the relative direction, the importance        head self-attention (MHSA) [22] runs the self-attention
+  of context, the interactions between queries, keys, val-        multiple times in parallel, i.e., employing h attention heads.
+  ues and relative position embeddings, and computa-              The attention head outputs are simply concatenated and lin-
+  tional cost. The analysis presents a comprehensive un-          early transformed into the expected dimensions.
+  derstanding of relative position encoding, and provides
+  empirical guidelines for new method design.                     2.2. Position Encoding
+
+· We introduce an efficient implementation of relative               Absolute Position Encoding. Since transformer con-
+  encoding, which reduces the computational cost from             tains no recurrence and no convolution, in order for the
+  the original O(n2d) to O(nkd), where k n. Such                  model to make use of the order of the sequence, we need
+  implementation is suitable for high-resolution input            to inject some information about the position of the to-
+  images, such as object detection and semantic segmen-           kens. The original self-attention considers the absolute
+  tation, where the token number might be very large.             position [22], and add the absolute positional encodings
+                                                                  p = (p1, . . . , pn) to the input token embedding x as
+· We propose four new relative position encoding meth-
+  ods, called image RPE (iRPE), dedicated to vision                                       xi = xi + pi,                    (4)
+  transformers, considering both efficiency and gener-
+  alizability. The methods are simple and can be eas-             where the positional encoding pi, xi  Rdx . There are sev-
+  ily plugged into self-attention layers. Experiments             eral choices of absolute positional encodings, such as the
+  show that, without adjusting any hyperparameters and
+  settings, the proposed methods can improve DeiT-                fixed encodings by sine and cosine functions with differ-
+  S [21] and DETR-ResNet50 [1] by 1.5% (top-1 Acc)
+  and 1.3% (mAP) over their original models on Ima-               ent frequencies and the learnable encodings through train-
+  geNet [5] and COCO [12], respectively.
+                                                                  ing parameters [8, 22].
+· We answer previous controversial questions. We em-
+  pirically demonstrate that relative position encoding                  Relative Position Encoding. Besides the absolute posi-
+  can replace the absolute encoding for image classifi-
+  cation task. Meanwhile, the absolute encoding is nec-           tion of each input element, recent works also consider the
+  essary for object detection, where the pixel position is
+  important for object localization.                              pairwise relationships between elements, i.e., relative po-
+
+                                                                  sition [17]. Relative relation is presumably important for
+
+                                                                  tasks where the relative ordering or distance of the elements
+
+                                                                  matters. This type of methods encode the relative position
+                                                                  between the input elements xi and xj into vectors piVj, piQj,
+                                                                  piKj  Rdz , where dz = dx. The encoding vectors are em-
+                                                                  bedded into the self-attention module, which re-formulates
+
+2. Background                                                     Eq. (1) and Eq. (3) as
+
+                                                                                          n
+
+2.1. Self-Attention                                                           zi = ij (xj WV + pVij ),                     (5)
+
+                                                                                      j=1
+
+Self-attention plays a fundamental role in transformer.                          (xiWQ+ piQj)(xj WK +      pKij )T .
+                                                                                                    dz
+It maps a query and a set of key-value pairs to an output.               eij  =                                            (6)
+
+More specifically, for an input sequence, e.g., the embed-
+
+dings of words or image patches, x = (x1, . . . , xn) of n        In this fashion, the pairwise positional relation is learned
+elements where xi  Rdx , self-attention computes an out-
+put sequence z = (z1, . . . , zn) where zi  Rdz . Each out-       during transformer training. Such relative position encod-
+
+put element zi is computed as a weighted sum of input ele-        ing can be either shared across attention heads or not.
+
+ments:               n                                            3. Method
+
+        zi = ij (xj WV ).                   (1)                      In this section, we first review previous relative position
+                                                                  encoding methods and analyze their differences. Then, we
+                                         j=1                      propose four new methods dedicated to vision transformer,
+                                                                  and their efficient implementation.
+Each weight coefficient ij is computed using a softmax:
+
+        ij =            exp(eij )        ,  (2)
+
+                        n    exp(eik  )
+                        k=1
+
+                                                                  10034
+                               (a) bias mode                                             (b) contextual mode
+
+Figure 1: Illustration of self-attention modules with 2D relative position encoding on keys. The blue parts are newly added.
+
+3.1. Previous Relative Position Encoding Methods                          eij  =  (xiWQ+ pij )(xj W K + pij )T -  pij pij T         ,  (11)
+                                                                                                           dz
+   Shaw's RPE. Shaw et al. [17] propose a relative position
+encoding for self-attention. The input tokens are modeled          where pij  Rdz is the relative position encoding shared
+as a directed and fully-connected graph. Each edge between         by queries and keys.
+two arbitrary positions i and j is presented by a learnable
+vector pij  Rdz , namely relative position encoding. Be-                  RPE in SASA. The above three methods are all designed
+sides, the authors deemed that precise relative position in-
+formation is not useful beyond a certain distance, so intro-       for 1D word sequence in language modeling. Ramachan-
+duced a clip function to reduce the number of parameters.
+The encoding is formulated as                                      dran et al. [16] propose an encoding method for 2D images.
+
+                                                                   The idea is simple. It divides the 2D relative encoding into
+
+                                                                   horizontal and vertical directions, such that each direction
+
+                                                                   can by modeled by a 1D encoding. The method formula-
+
+                                                                   tion is given as follows
+
+                n                                                                 (xiWQ)(xj WK +concat(pKx~, pKy~))T
+                                                                                                          dz
+        zi =         ij (xj WV + pcVlip(i-j,k)),          (7)             eij  =                                               ,       (12)
+
+                j=1                                                   where x~ = x~i - x~j and y~ = y~i - y~j denote the relative
+                                                                   position offsets on x-axis and y-axis of the image coordi-
+        eij  =  (xi  WQ  )(xj  WK  +  pcKlip(i-j,k))T  ,  (8)
+                                 
+                                 dz                                nate respectively, pKx~ and pKy~ are learnable vectors with
+                                                                               1
+                                                                   length      2  dz  ,  the  concat  operation  concatenates  the  two  en-
+
+             clip(x, k) = max(-k, min(k, x)),             (9)      codings to form a final relative encoding with length of dz.
+
+where pV and pK are the trainable weights of relative po-          In other words, the same offsets on x-axis or y-axis share
+sition encoding on values and keys, respectively. pV =
+(p-V k, ..., pVk ) and pK = (pK-k, ..., pkK ) where piV , piK      the same relative position encoding, so this method is able
+Rdz . The scalar k is the maximum relative distance.
+                                                                   to reduce the number of learnable parameters and computa-
+   RPE in Transformer-XL. Dai et al. [4] introduce addi-
+                                                                   tional cost. However, the encoding is only applied on keys.
+tional bias terms for queries, and uses the sinusoid formu-
+                                                                   In our experiments, we observe that the RPE imposed on
+lation for relative position encoding, which is formulated as
+                                                                   keys, queries and values simultaneously is the most effec-
+
+                                                                   tive one, as presented in Tab. 4 and Tab. 5.
+
+                                                                          RPE in Axial-Deeplab. Wang et al. [23] introduce
+
+eij  =  (xiWQ+  u)(xjWK )T + (xiWQ+           v)(si-j WR)T      ,  a position-sensitive method that adds qkv-dependent posi-
+                                   dz                              tional bias into self-attention. The position sensitivity is ap-
+                                                          (10)     plied on axial attention that propagates information along
+where u, v  Rdz are two learnable vectors.                         height-axis and width-axis sequentially. However, when the
+                                                                   relative distance is larger than a threshold, the encoding is
+     The sinusoid encoding vector s provides the prior of rel-     set to zero. We observe that long-range relative position
+                                                                   information is useful, as analysed in Tab. 6. The position-
+ative position [22]. WR  Rdz×dz is a trainable matrix,             sensitivity might be competitive when imposed on the stan-
+                                                                   dard self-attention. If equipped with the proposed piecewise
+projecting si-j into a location-based key vector.
+
+     Huang's RPE. Huang et al. [11] propose a new method
+
+considering the interactions of queries, keys and relative po- function, it can be further improved and become more effi-
+
+sitions simultaneously. The equation is given as follows           cient for modeling long-range dependencies.
+
+                                                                   10035
+3.2. Proposed Relative Position Encoding Methods
+
+We design our image RPE (iRPE) methods to analyze
+
+several factors which are not well studied in prior works
+
+(see the analysis in Sec. 4.2). First, to study whether the
+
+encoding can be independent of the input embeddings, we
+
+introduce two relative position modes: bias and contextual.
+
+We present a piecewise function to map relative positions to
+
+encodings, being different from the conventional clip func-
+
+tion. After that, to study the importance of directivity, we   Figure 2: The comparison between the piecewise function
+                                                               g(x) and the clip function h(x).
+design two undirected and two directed methods. Finally
+
+we provide an efficient implementation for our methods.
+
+Bias Mode and Contextual Mode. Previous relative po-           (e.g., high resolution images). Although the clip function
+                                                               h(x) = max(-, min(, x)) used in [17] also reduces the
+sition encoding methods all depend on input embeddings.        cost, the positions whose relative distance is larger than 
+                                                               are assigned to the same encoding. This method inevitably
+It brings a question, i.e., whether the encoding can be inde-  drops out the contextual information of long-range relative
+                                                               positions. Inspired by [15], we introduce a piecewise func-
+pendent of the input? We introduce bias mode and contex-       tion g(x) : R  {y  Z| -   y  } for indexing
+                                                               relative distances to corresponding encodings. The function
+tual mode of relative position encoding to study the ques-     is based on a hypothesis that the closer neighbors are more
+                                                               important than the further ones, and distributes the attention
+tion. The former one is independent of input embeddings,       by the relative distance. It is presented as
+
+while the latter one considers the interaction with queries,
+
+keys or values. More specifically, we introduce a unified
+
+formulation as
+
+eij             =  (xiWQ)(xj WK )T +bij      ,         (13)
+                                 dz
+
+where bij  R is the 2D relative position encoding, defining    g(x) =  [x],                                          |x|  
+                                                                                                                     |x| > 
+the bias or contextual mode. For bias mode,                            sign(x)  × min(, [ +  ln (|x|/)  (  -   )]),
+                                                                                              ln (/)                    (18)
+                      bij = rij ,                      (14)
+
+where rij  R is a learnable scalar and represents the rela-           where [·] is a round operation, sign(x) determines the
+
+tive position weight between the position i and j. For con-    sign of a number, i.e., returning 1 for positive input, -1 for
+
+textual mode,                                                  negative, and 0 for otherwise.  determines the piecewise
+
+                   bij = (xiWQ)rij T ,                 (15)    point,  controls the output in the range of [-, ], and 
+
+where rij  Rdz is a trainable vector, interacted with the      adjusts the curvature of the logarithmic part.
+
+query embedding. There are multiple variants for bij in con-          We compare the piecewise function g(x) with the clip
+
+textual mode. For example, the relative position encoding      function h(x) = min(-, max(, x)), i.e. Eq. (9). In
+
+operated on both queries and keys can be presented as          Fig. 2, the clip function h(x) distributes uniform attention
+
+bij = (xiWQ)(rKij )T + (xj WK )(riQj )T , (16)                 and leaves out long distance positions, but the piecewise
+
+where rKij , rQij  Rdz are both learnable vectors. Besides,    function g(x) distributes different levels of attention by rel-
+
+contextual mode can also be applied on value embeddings,       ative distance. We suppose that the potential information in
+
+                   n                                           long-range position should be preserved, especially for high
+
+                zi = ij (xj WV + riVj ),               (17)    resolution images or the tasks requiring long-range feature
+
+                                    j=1                        dependencies, so g(x) is selected to construct our mapping
+
+where rVij  Rdz . The relative position weights riQj, riKj     method for rij.
+and rVij can be constructed in the same way. For a unified        2D Relative Position Calculation. In order to calculate
+representation, we use rij to denote them in bias mode and
+                                                               relative position on 2D image plane and define the relative
+contextual mode in the following discussion. Fig. 1 shows
+                                                               weight rij, we propose two undirected mapping methods,
+
+the illustration of self-attention modules with 2D relative    namely Euclidean and Quantization, as well as two directed
+
+position encoding on keys in the propsoed two modes.           mapping methods, namely Cross and Product.
+
+A Piecewise Index Function. Before describing the                     Euclidean method. On image plane, the relative position
+
+2D relative position weight rij, we first introduce a many-    (x~i -x~j, y~i -y~j) is a 2D coordinate. We compute Euclidean
+to-one function, mapping a relative distance into an in-       distance between two positions, and maps the distance into
+
+teger in finite set, then rij can be indexed by the inte-      the corresponding encoding. The method is undirected and
+ger and share encondings among different relation posi-
+                                                               formulated as    rij = pI(i,j),                       (19)
+
+tions. Such index function can largely reduce computa-
+
+tion costs and the number of parameters for long sequence              I(i, j) = g( (x~i - x~j)2 + (y~i - y~j)2 ), (20)
+
+                                                               10036
+where pI(i,j) is either a learnable scalar in bias mode or a             It takes time complexity O(n2d) to compute all yij, where
+vector in contextual mode. We regard pI(i,j) as a bucket,                n and d are the length of the input sequence and the number
+which stores the relative position weight. The number of                 of feature channels, respectively. Due to the many-to-one
+buckets is 2 + 1, as defined in Eq. (18).                                property of I(i, j), the set size k of I(i, j) is usually less
+                                                                         than n in vision transformer. Therefore, we provide an effi-
+   Quantization method. In the above Euclidean method,                   cient implementation as follows,
+the closer two neighbors with different relative distances
+may be mapped into the same index, e.g. the 2D relative                        zi,t = (xiW)ptT , t  {I(i, j)|i, j  [0, n)}, (27)
+positions (1, 0) and (1, 1) are both mapped into the index 1.
+We suppose that the close neighbors should be separated.                        yij = zi,I(i,j).  (28)
+Therefore, we quantize Euclidean distance, i.e., different
+real number is mapped into different integer. We revise                  It first takes time complexity O(nkd) to pre-compute all zi,t
+I(i, j) in Eq. (19) as                                                   by Eq. (27), then assigns zi,t to all yij by the mapping t =
+                                                                         I(i, j) by Eq. (28). The assignment operation takes time
+I(i, j) = g(quant( (x~i - x~j)2 + (y~i - y~j)2) ). (21)                  complexity O(n2), whose cost is much smaller than that
+
+The operation quant maps a set of real numbers {0, 1, 1.41,              of the pre-computation procedure. Thus, the computational
+
+2, 2.24, ...} into a set of integers {0, 1, 2, 3, 4, ...}. This          cost of relative position encoding reduces from the original
+                                                                         O(n2d) to O(nkd).
+method is also undirected.
+
+Cross method. Positional direction of pixels is also im-
+
+portant for images, we thereby propose directed mapping                  4. Experiments
+
+methods. This method is called Cross method, which com-                     In this section, we first provide some analysis by com-
+                                                                         paring different position embeddings, followed by experi-
+putes encoding on horizontal and vertical directions sepa-               ments on the effects of key factors in relative position en-
+                                                                         coding. Then, we compare the proposed methods with the
+rately, then summarizes them. The method is given as                     state-of-the-art methods on image classification and object
+                                                                         detection tasks. Finally, we visualize the relative position
+                  rij = pIx~x~(i,j) + pIy~y~(i,j),                 (22)  encoding and explain why it works.
+
+                  Ix~(i, j) = g(x~i - x~j),                        (23)  4.1. Implementation Details
+
+                  Iy~(i, j) = g(y~i - y~j),                        (24)     We choose the recent vision transformer model
+                                                                         DeiT [21] as the baseline for most experiments. The rela-
+where pIx~(i,j) and pyI~(i,j) are both learnable scalars in bias         tive position encoding is added into all self-attention layers.
+mode, or a learnable vectors in contextual mode. Similar to              If not specified, RPE is only added on keys. We set :: =
+                                                                         1:2:8 for the piecewise function g(x), and adjust the number
+the encoding in SASA [16], the same offsets on x-axis or                 of buckets by changing . An extra bucket is used to store
+                                                                         the relative position encodings of the classification token.
+y-axis share the same encoding, but the main difference is
+                                                                            For fair comparison, we adopt the same training set-
+that we use a piecewise function to distribute attention by              tings as DeiT [21]: AdamW [13] optimizer with weight de-
+                                                                         cay 0.05, initial learning rate 1x10-3 and minimal learning
+relative distance. The number of buckets is 2 × (2 + 1).                 1x10-5 with cosine scheduler, 5 epochs warmup, batch size
+                                                                         of 1024, 0.1 label smoothing [19], and stochastic depth with
+Product method. The Cross method encodes different                       survival rate of 0.9. The images are split into 14x14 non-
+                                                                         overlapping patches. Data augmentation methods [26, 27]
+relative positions into the same embedding if the distance               are consistent with DeiT [21]. All models are trained from
+                                                                         scratch for 300 epochs with 8 NVIDIA Tesla V100 GPUs.
+on one direction is identical, either horizontal or vertical.
+                                                                         4.2. Analysis on Relative Position Encoding
+Besides, the addition operation in Eq. (22) brings extra com-
+                                                                            Directed v.s. Undirected. As shown in Tab. 1, directed
+putational cost. To improve efficiency and involve more di-              methods (Cross and Product), in general, perform better
+                                                                         than undirected ones (Euclidean and Quantization) in vision
+rectional information, we design Product method which is                 transformer. This phenomenon illustrates that the directiv-
+                                                                         ity is important for vision transformers, because image pix-
+formulated as                                                            els are highly structured and semantically correlative.
+
+                  rij = pIx~(i,j),Iy~(i,j).                        (25)
+
+The right side of the equation is a trainable scalar in bias
+mode, or a trainable vector in contextual mode. Ix~(i, j)
+
+and Iy~(i, j) are defined in Eq. (23) and Eq. (24), and the
+
+combination of them is a 2D index for p. The number of
+buckets is (2 + 1)2.
+
+An Efficient Implementation. For the above pro-
+
+posed methods in contextual mode, there is a common term
+
+(xiW)pI        T  when  putting  Eq.  (19),  Eq.    (22)  or  Eq.  (25)
+         (i,j)
+
+into Eq. (15). Let yij denote the common term as follows,
+
+                  yij = (xiW)pI(i,j)T .                            (26)
+
+                                                                         10037
+        Method            Is      Mode       Top-1             Function     Mode      Top-1 Acc(%)  Top-5 Acc(%)
+based on DeiT-S [21]  Directed              Acc(%)  Acc(%)        clip       bias           80.1          94.9
+                                     -                                    contextual        80.9          95.5
+    Original [21]         -        bias       79.9     ­       piecewise     bias           80.0          95.0
+      Euclidean          ×      contextual    80.1   +0.2                 contextual        80.9          95.5
+                                   bias       80.4   +0.5
+     Quantization        ×      contextual    80.3   +0.4
+                                   bias       80.5   +0.6
+         Cross                  contextual    80.5   +0.6      Table 3: Ablation for clip function and piecewise function.
+                                   bias       80.8   +0.9      The experiments are conducted over DeiT-S [21] model
+        Product                 contextual    80.5   +0.6      with product shared-head relative position encoding on Im-
+                                              80.9   +1.0      ageNet [5]. The number of buckets is 50.
+
+Table 1: Ablation of our relative position encoding meth-
+ods on ImageNet [5]. The original model is DeiT-S [21],
+which only uses absolute position encoding. We equip the
+model with the proposed four relative encoding methods,
+i.e., Eq. (19), Eq. (21), Eq. (22) and Eq. (25) with the best
+numbers of buckets of 20, 51, 56 and 50 respectively.
+
+   Mode     Shared    #Param.   MACs            Top-1          Figure 3: Ablation for the number of buckets in contextual
+   Bias        ×        (M)      (M)           Acc(%)          product model with shared RPEs on ImageNet [5].
+Contextual     ×       22.05    4613        80.54 ± 0.06
+                       22.05    4613        80.05 ± 0.04
+                       22.28    4659        80.99 ± 0.16
+                       22.09    4659        80.89 ± 0.04
+
+Table 2: Ablation of shared and unshared relative position
+encoding across attention heads. The experiments are con-
+ducted over DeiT-S [21] on ImageNet [5] with 50 buckets.
+The models are trained and evaluated by three times.
+
+   Bias v.s. Contextual. Tab. 1 shows that the contextual      Figure 4: The extra computational cost of RPE with 50
+mode achieves superior performance to that of bias mode,       buckets in different implementations under different reso-
+regardless of which method uses. The underlying reason         lutions. The baseline model is DeiT-S [21]. MACs means
+might be that contextual mode changes the encoding with        multiply-accumulate operations.
+the input feature while bias mode keeps static.
+                                                               as illustrated in Tab. 6 (#5 v.s. #6). The underlying reason is
+   Shared v.s. Unshared. Self-attention contains multiple      that they are similar when the sequence is short. The piece-
+heads. RPE can be either shared or unshared across dif-        wise function is effective especially when the sequence size
+ferent heads. We show the effects of these two schemes in      is much larger than the number of buckets. Object detection
+bias and contextual modes in Tab. 2, respectively. For bias    uses a much higher resolution input compared to classifica-
+mode, the accuracy drops significantly when sharing encod-     tion, leading to a much longer input sequence. We therefore
+ing across heads. By contrast, in contextual mode, the per-    conjecture that when the input sequence is long, the piece-
+formance gap between two schemes is negligible. Both of        wise function should be used since it is able to distribute dif-
+them achieve an average top-1 accuracy of 80.9%. We con-       ferent attentions to the positions with relative large distance,
+jecture that different heads need different RPEs to capture    while the clip function assigns the same encoding when the
+different information. In contextual mode, each head com-      relative distance is larger than .
+putes its own RPE by the Eq. (15) while in bias mode the
+shared RPE forces all heads to pay the same attention on          Number of buckets. The number of buckets largely af-
+patches. For parameter-saving, we adopt the share scheme       fects model parameters, computational complexity and per-
+in our final methods.                                          formance. In order to find a balance, we explore the influ-
+                                                               ence of varying the number of buckets for the contextual
+   Piecewise v.s. Clip. We compare the efficacy of the         Product method. Fig. 3 shows the change of top-1 accuracy
+piecewise function g(x) defined in Eq. (18) and the clip       along with the number of buckets. The accuracy increases
+function h(x) defined in Eq. (9) in Tab. 3. There is a very    from 79.9 to 80.9 before 50 buckets. After that, there is no
+small, even negligible, performance gap between them in        significant improvement. It shows that the number of buck-
+image classification task. However, in object detection task,  ets 50 is a good balance between the computational cost and
+we found the clip function is worse than the piecewise one     the accuracy for 14 × 14 feature map in DeiT-S [21].
+
+                                                               10038
+#  Abs Pos. pQij pKij piVj  Top-1  Top-5                               Model                         #Param.       Input  MACs   Top-1
+                            79.9   95.0                                                                                    (M)  Acc (%)
+1 [21] learnable × × ×
+                                                                                                     Convnets
+
+2  ×          × × × 77.6(-2.3) 93.8                                       ResNet-50 [10]             25M 2242 4121              79.0
+                                                                       RegNetY-4.0GF [14]
+3  ×             × × 80.9(+1.0) 95.4                                   EfficientNet-B1 [20]          21M 2242 4012              79.4
+                                                                       EfficientNet-B5 [20]
+4  ×          ×   × 80.9(+1.0) 95.3                                                                  8M 2402 712                79.1
+
+5  ×          ××            80.2(+0.3) 95.0                                                          30M 4562 10392 83.6
+
+                                                                                                     Transformers
+
+6  ×              × 81.0(+1.1) 95.5                                    ViT-B/16 [7]                  86M 3842 55630 77.9
+                                                                       ViT-L/16 [7]                  307M 3842 191452 76.5
+7  ×                        81.3(+1.4) 95.7
+                                                                                DeiT-Ti [21]         5M 2242 1261               72.2
+8 learnable      × × 80.9(+1.0) 95.5                                         CPVT-Ti(0-5) [3]
+                                                                       DeiT-Ti with iRPE-K(Ours)     6M 2242 1262               73.4
+9 learnable ×     × 80.9(+1.0) 95.5
+                                                                                                     6M 2242 1284               73.7
+
+10 learnable × ×            80.2(+0.3) 95.1                            DeiT-S [21]                   22M 2242 4613              79.9
+
+11 learnable      × 81.1(+1.2) 95.4                                    CPVT-S(0-5) [3]               23M 2242 4616              80.5
+
+12 learnable                81.4(+1.5) 95.6                            DeiT-S(Shaw's) [17, 21]+      22M 2242 4659              80.9
+
+                                                                       DeiT-S(Trans.-XL's) [4, 21]+  23M 2242 4828              80.8
+
+Table 4: Component-wise analysis on ImageNet [5]. We                   DeiT-S(Huang's) [11, 21]+     22M 2242 4706              81.0
+add contextual product shared-head RPE into DeiT-S [21].
+The number of buckets is 50. Abs Pos. represents the ab-               DeiT-S(SASA's) [16, 21]       22M 2242 4639              80.8
+solute position encoding. piQj, pKij and piVj present relative
+position encodings on queries, keys and values.                        DeiT-S with iRPE-K(Ours)      22M 2242 4659              80.9
+
+   Component-wise analysis. We perform a component-                    DeiT-S with iRPE-QK(Ours) 22M 2242 4706                  81.1
+wise analysis to study the effects of different position en-
+codings for vision transformer models. We select DeiT-S         DeiT-S with iRPE-QKV(Ours) 22M 2242 4885                        81.4
+model [21] as the baseline, and only change the position en-
+coding methods. The learnable absolute position encoding                        DeiT-B [21]          86M 2242 17592 81.8
+is used in the original model. The relative position encod-                  CPVT-B(0-5) [3]         86M 2242 17598 81.9
+ings are computed by contextual Product method with 50                 DeiT-B with iRPE-K(Ours)      87M 2242 17684 82.4
+buckets. The conclusions we got from Tab. 4 are as fol-
+lows: 1) Removing absolute position encoding from orig-         + We utilize our product method to adapt 1D encoding for 2D images with
+inal DeiT-S will cause that the Top-1 accuracy drops from
+79.9 to 77.6 (#1 v.s. #2). 2) The models with only relative       the clip function. The encoding weight is shared across heads.
+position encoding surpass the one with only absolute posi-      * DeiT-S [21] with SASA [16]'s relative position encoding.
+tion encoding (#3-5 v.s. #1). It shows that RPE works well
+as the absolute one. 3) When equipped with RPE, the ab-                Table 5: Comparison on ImageNet [5].
+solute one does not bring any gains (#3-5 v.s. #8-10). We
+suppose that the local information is more important than       els. In particular, we improve the DeiT-Ti/S/B models by
+the global one in classification task. 4) The RPE on queries    1.5%/1.0%/0.6% respectively, through adding RPE only on
+or keys brings more gain than that on values (#3,4 v.s. #5).    keys. We show that the models could be further improved
+5) The combination of the encodings on queries, keys and        by adding the proposed RPE on both queries and values.
+values brings further improvements (#6,7,11,12 v.s. others).    When compared with other methods, ours achieve superior
+                                                                performance with less parameters and MACs.
+   Complexity Analysis. We evaluate the computational
+cost of our proposed methods with respect to different input    4.4. Comparison on Object Detection
+resolutions. The baseline model is DeiT-S [21] with only
+absolute position encoding. We adopt contextual product            To verify the generality, we further evaluate our method
+shared-head relative position encoding to the baseline with     on COCO 2017 detection dataset [12]. We use the
+50 buckets. Fig. 4 shows our method takes at most 1% extra      transformer-based detection model DETR [1] as baseline,
+computational cost with efficient implementation.               and follow the same train/val settings (including hyperpa-
+                                                                rameters), except injecting RPE into all self-attention mod-
+4.3. Comparison on Image Classification                         ules in the encoder. As shown in Tab. 6 (#1,6 and #8,9), our
+                                                                method consistently improve the performance of DETR by
+   We compare our proposed methods with the state-of-           1.3 and 1.7 mAP under 150 and 300 training epochs.
+the-art methods on image classification tasks. We select
+DeiT [21] as the baseline. We adopt contextual Product             In addition, we conduct ablation studies analyzing that
+shared-head method with 50 buckets. As shown in Tab.            the effects of position encoding on object detection task.
+5, our method brings improvement on all three DeiT mod-         Comparing #1, #2 and #4 in Tab. 6, we give the conclusion
+                                                                that position encoding is crucial for DETR. We also show
+                                                                that absolute position embedding is better than relative po-
+                                                                sition embedding in DETR, which is contrast to the obser-
+                                                                vation in classification. We conjecture that DETR needs the
+                                                                prior of absolute position encoding to locate objects.
+
+                                                                4.5. Visualization
+
+                                                                   To explore the underlying reason of relative position
+                                                                encoding, we visualize the extra weights bij (defined in
+                                                                Eq. (13)) added into the attention by RPE for different po-
+
+                                                                10039
+# Abs Pos. Rel Pos. #buckets epoch AP AP50 AP75 APS APM APL
+
+1 [1] sinusoid none        -    150 39.5 60.3 41.4 17.5 43.0 59.1
+
+2  none      none          -    150 30.4(-9.1) 52.5 30.2 9.4 31.2 50.5
+
+3 sinusoid   bias          9 × 9 150 40.6(+1.1) 61.2 42.8 19.0 43.9 60.2
+
+4  none contextual 9 × 9 150 38.7(-0.8) 60.1 40.4 18.2 41.8 56.7
+
+5 sinusoid ctx clip        9×9  150 40.4(+0.9) 60.9 42.4 19.1 43.7 59.8
+
+6 sinusoid contextual 9 × 9 150 40.8(+1.3) 61.5 42.5 18.5 44.4 60.5
+
+7 sinusoid contextual 15 × 15 150 40.8(+1.3) 61.7 42.6 18.5 44.2 61.2
+
+8 [1] sinusoid none        -    300 40.6 61.6 - 19.9 44.3 60.2
+
+9 sinusoid contextual 9 × 9 300 42.3(+1.7) 62.8 44.3 20.7 46.2 61.1
+
+             Table 6: Component-wise analysis on DETR [1].
+
+(a) block 0  (b) block 10                                       absolute position encoding is added in encoder and decoder.
+                                                                   Relative Position Encoding. Relative position encod-
+Figure 5: Visualization of relative position encoding (RPE)
+                                                                ing is proposed firstly by Shaw et al. [17], where relative
+in contextual product method. We show the extra weights         position encodings are added into keys and values. Dai et
+                                                                al. [4] proposed relative position encoding with the prior of
+added to the attention by RPE for different positions. (a),     the sinusoid matrix and more learnable parameters. Huang
+                                                                et al. [11] proposed several 1D encoding variants. The ef-
+(b) display the RPE weights for 5 × 5 reference patches         fectiveness of relative position encoding has been verified
+                                                                in natural language processing. There are also some works
+uniformly sampled from 14 × 14 patches in block 0 and 10.       utilizing relative position encoding on 2D visual tasks. Ra-
+                                                                machandran et al. [16, 18] proposed 2D relative position en-
+sitions. From Fig. 5, RPE makes patches focus more on its       coding that computes and concatenates separate encodings
+neighboring patches in block 0. However, when it turns to       of each dimension. Chu et al. [3] proposed position encod-
+higher blocks, this phenomenon disappears. We conjecture        ing generator, inserted between encoders. However, the ef-
+that after passing through multiple layers, the model has al-   ficacy of relative position encoding in visual transformer is
+ready captured enough local information. The shallow lay-       still unclear, which is discussed and addressed in this work.
+ers in transformer are global attentions, paying attention to
+the whole image (consisting of small patches). It is differ-    6. Conclusions and Remarks
+ent from CNN models in which shallow layers only capture
+local information. In theory, without RPE (or other addi-          In this paper, we review existing relative position en-
+tional operations such as local windows), transformer does      coding methods, and propose four methods dedicated to
+not explicitly capture locality. RPEs inject Conv-like induc-   visual transformers. The abundant experiments show that
+tive bias (including locality) into transformer, improving the  our methods bring a clear improvement on both classifica-
+model capability of capturing local patterns.                   tion and detection tasks with negligible extra complexity.
+                                                                Our methods could be easily plugged into the self-attention
+5. Related Work                                                 modules in vision models. In addition, we give comparison
+                                                                of different methods and analysis on RPE with following
+   Transformer. Transformer was originally introduced by        conclusions. 1) RPE can be shared among different heads
+Vaswani et al. [22] for natural language processing, and re-    for parameter-saving. It is able to achieve comparable per-
+cently extended to computer vision [1, 7, 21]. In this work     formance with the non-shared one in contextual mode. 2)
+we study vision transformers in image classification and ob-    RPE can replace the absolute one in image classification
+ject detection tasks, and select DeiT [21] and DETR [1] as      task. However, absolute position encoding is necessary for
+our baseline models. In ViT [7] and DeiT [21], an image         object detection task, which needs to predict locations of
+is split into multiple fixed-size patches. The embedded fea-    objects. 3) RPE should consider the positional directivity,
+tures of patches are added with absolute position encoding      which is important to structured 2D images. 4) RPE forces
+to fed in a standard transformer encoder. An extra trainable    the shallow layers to pay more attention to local patches.
+classification token is added into the sequence for classi-
+fication. In DETR [1], a CNN backbone is used for fea-             In future work, we plan to extend our method to
+ture extraction first. Its output, a 32× downsampling fea-      other attention-based models and scenarios, such as high-
+ture map is flatten and fed in a transformer that outputs a     resolution input tasks like semantic segmentation [29], and
+certain number of bounding boxes. A learnable or sinusoid       non-pixel input tasks like point cloud classification [9, 28].
+
+                                                                   Acknowledgments. Thanks to Dr. Xingxing Zhang for
+                                                                insightful discussions. This work is partially supported by
+                                                                NSF of China under Grant 61672548, U1611461.
+
+                                                                10040
+References                                                                  attention with relative position representations. ACL, 2018.
+                                                                            1, 2, 3, 4, 7, 8
+ [1] Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas       [18] Aravind Srinivas, Tsung-Yi Lin, Niki Parmar, Jonathon
+      Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-to-            Shlens, Pieter Abbeel, and Ashish Vaswani. Bottleneck
+      end object detection with transformers. In ECCV, 2020. 1,             transformers for visual recognition. In CVPR, 2021. 1, 8
+      2, 7, 8                                                         [19] Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jon
+                                                                            Shlens, and Zbigniew Wojna. Rethinking the inception ar-
+ [2] Minghao Chen, Houwen Peng, Jianlong Fu, and Haibin                     chitecture for computer vision. In CVPR, 2016. 5
+      Ling. Autoformer: Searching transformers for visual recog-      [20] Mingxing Tan and Quoc Le. Efficientnet: Rethinking model
+      nition. In ICCV, 2021. 1                                              scaling for convolutional neural networks. In ICML, 2019. 7
+                                                                      [21] Hugo Touvron, Matthieu Cord, Matthijs Douze, Francisco
+ [3] Xiangxiang Chu, Bo Zhang, Zhi Tian, Xiaolin Wei, and                   Massa, Alexandre Sablayrolles, and Herve´ Je´gou. Training
+      Huaxia Xia. Do we really need explicit position encodings             data-efficient image transformers & distillation through at-
+      for vision transformers? arXiv preprint arXiv:2102.10882,             tention. In ICML, 2021. 1, 2, 5, 6, 7, 8
+      2021. 1, 7, 8                                                   [22] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszko-
+                                                                            reit, Llion Jones, Aidan N Gomez, Lukasz Kaiser, and Illia
+ [4] Zihang Dai, Zhilin Yang, Yiming Yang, Jaime G Carbonell,               Polosukhin. Attention is all you need. In NeurIPS, 2017. 1,
+      Quoc Le, and Ruslan Salakhutdinov. Transformer-xl: Atten-             2, 3, 8
+      tive language models beyond a fixed-length context. In ACL,     [23] Huiyu Wang, Yukun Zhu, Bradley Green, Hartwig Adam,
+      2019. 1, 3, 7, 8                                                      Alan Yuille, and Liang-Chieh Chen. Axial-deeplab: Stand-
+                                                                            alone axial-attention for panoptic segmentation. In ECCV,
+ [5] Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li,                 2020. 3
+      and Li Fei-Fei. Imagenet: A large-scale hierarchical image      [24] Xiaolong Wang, Ross Girshick, Abhinav Gupta, and Kaim-
+      database. In CVPR, 2009. 2, 6, 7                                      ing He. Non-local neural networks. In CVPR, 2018. 1
+                                                                      [25] Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Carbonell,
+ [6] Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina                 Russ R Salakhutdinov, and Quoc V Le. Xlnet: General-
+      Toutanova. Bert: Pre-training of deep bidirectional                   ized autoregressive pretraining for language understanding.
+      transformers for language understanding. arXiv preprint               NeurIPS, 32, 2019. 1
+      arXiv:1810.04805, 2018. 1                                       [26] Sangdoo Yun, Dongyoon Han, Seong Joon Oh, Sanghyuk
+                                                                            Chun, Junsuk Choe, and Youngjoon Yoo. Cutmix: Regu-
+ [7] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov,                 larization strategy to train strong classifiers with localizable
+      Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner,                   features. In ICCV, 2019. 5
+      Mostafa Dehghani, Matthias Minderer, Georg Heigold, Syl-        [27] Hongyi Zhang, Moustapha Cisse, Yann N Dauphin, and
+      vain Gelly, et al. An image is worth 16x16 words: Trans-              David Lopez-Paz. mixup: Beyond empirical risk minimiza-
+      formers for image recognition at scale. ICLR, 2021. 1, 7,             tion. arXiv preprint arXiv:1710.09412, 2017. 5
+      8                                                               [28] Hengshuang Zhao, Li Jiang, Jiaya Jia, Philip Torr, and
+                                                                            Vladlen Koltun. Point transformer. arXiv preprint
+ [8] Jonas Gehring, Michael Auli, David Grangier, Denis Yarats,             arXiv:2012.09164, 2020. 8
+      and Yann N Dauphin. Convolutional sequence to sequence          [29] Sixiao Zheng, Jiachen Lu, Hengshuang Zhao, Xiatian Zhu,
+      learning. In ICML, 2017. 1, 2                                         Zekun Luo, Yabiao Wang, Yanwei Fu, Jianfeng Feng, Tao
+                                                                            Xiang, Philip H.S. Torr, and Li Zhang. Rethinking semantic
+ [9] Meng-Hao Guo, Jun-Xiong Cai, Zheng-Ning Liu, Tai-Jiang                 segmentation from a sequence-to-sequence perspective with
+      Mu, Ralph R Martin, and Shi-Min Hu. Pct: Point cloud                  transformers, 2020. 8
+      transformer. arXiv preprint arXiv:2012.09688, 2020. 8
+
+[10] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
+      Deep residual learning for image recognition. In CVPR,
+      2016. 7
+
+[11] Zhiheng Huang, Davis Liang, Peng Xu, and Bing Xiang. Im-
+      prove transformer models with better relative position em-
+      beddings. In EMNLP, 2020. 3, 7, 8
+
+[12] Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays,
+      Pietro Perona, Deva Ramanan, Piotr Dolla´r, and C Lawrence
+      Zitnick. Microsoft coco: Common objects in context. In
+      ECCV, 2014. 2, 7
+
+[13] Ilya Loshchilov and Frank Hutter. Decoupled weight decay
+      regularization. arXiv preprint arXiv:1711.05101, 2017. 5
+
+[14] Ilija Radosavovic, Raj Prateek Kosaraju, Ross Girshick,
+      Kaiming He, and Piotr Dolla´r. Designing network design
+      spaces. In CVPR, 2020. 7
+
+[15] Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee,
+      Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and
+      Peter J. Liu. Exploring the limits of transfer learning with a
+      unified text-to-text transformer. JMLR, 21(140), 2020. 1, 4
+
+[16] Prajit Ramachandran, Niki Parmar, Ashish Vaswani, Irwan
+      Bello, Anselm Levskaya, and Jonathon Shlens. Stand-
+      alone self-attention in vision models. arXiv preprint
+      arXiv:1906.05909, 2019. 3, 5, 7, 8
+
+[17] Peter Shaw, Jakob Uszkoreit, and Ashish Vaswani. Self-
+
+                                                                      10041
+

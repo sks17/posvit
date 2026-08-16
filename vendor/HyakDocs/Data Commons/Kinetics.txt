@@ -1,0 +1,167 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Start Here
+Ego4d & Ego-Exo4D
+Epic Kitchens
+FineWeb-Edu
+ImageNet
+Kinetics
+Olmo-mix-1124
+TabLib
+TCGA
+The Pile
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Data CommonsKinetics
+Kinetics Dataset
+tip
+This dataset is available on Hyak Klone and Tillicum.
+
+Sponsoring groups are Rajesh Rao, Abhishek Gupta, Ali Farhadi. Student users are Vishwas Sathish, Chuning Zhu, and Aditya Kusupati. Initial deployment of April 2024 on Klone and Sep 2025 on Tillicum.
+
+What is this?
+Kinetics is a collection of large-scale, high-quality datasets of URL links of up to 650,000 video clips that cover 400/600/700 human action classes, depending on the dataset version. You can learn more at their github here or from their paper here.
+
+How to prepare for use?
+Install decord on your python environment to read the video files. You can also use other libraries to read video frames. Popular ones include OpenCV, python bindings for ffmpeg and skvideo.
+
+from decord import VideoReader, cpu
+
+# load a single file of the dataset
+video_clip_path = "/<path>/<to>/<video_folder>/LABLE/IDX-start_time-end_time.mp4"
+vr = VideoReader(file_path, num_threads=-1, ctx=cpu(0))
+
+
+How to access?
+The file path for kinetics dataset on klone is /data/kinetics.
+
+The file path for kinetics dataset on tillicum is /gpfs/datasets/kinetics.
+
+The kinetics dataset is licensed by Google Inc. under a Creative Commons Attribution 4.0 International License. Published. May 22, 2017.
+
+How to cite?
+If you use the Kinetics dataset or any of the components, please cite:
+
+@article{kay2017kinetics,
+  title={The Kinetics Human Action Video Dataset},
+  author={Will Kay and Joao Carreira and Karen Simonyan and Brian Zhang and Chloe Hillier and Sudheendra Vijayanarasimhan and Fabio Viola and Tim Green and Trevor Back and Apostol Natsev and Mustafa Suleyman and Andrew Zisserman},
+  journal={ArXiv},
+  year={2017},
+  volume={abs/1705.06950},
+}
+
+
+Previous
+ImageNet
+Next
+Olmo-mix-1124
+What is this?
+How to prepare for use?
+How to access?
+How to cite?
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

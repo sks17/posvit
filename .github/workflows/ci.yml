@@ -1,0 +1,21 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  contracts:
+    name: contracts and statistics
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # The default test tier never runs a model, so the CPU wheel is enough and the
+      # multi-gigabyte CUDA build is avoided.
+      - name: Install CPU torch
+        run: pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+      - name: Install package
+        run: pip install -e ".[dev]"
+      - name: Run tests
+        run: pytest

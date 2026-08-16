@@ -1,0 +1,155 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+System Architecture
+Get Started
+Join a Group
+Account Creation
+Two-Factor Authentication
+Setup
+SSH & Login Node Usage
+Intracluster SSH Keys
+SSH Port Forwarding
+X11 Forwarding
+Storage
+Start Here
+Storage on Klone
+Compute
+Start Here
+Scheduling Jobs
+Using Idle Resources
+Resource Monitoring
+GPUs
+Start Here
+NVIDIA NGC Containers
+Using Ollama on Hyak
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Hyak KloneSetupIntracluster SSH Keys
+Intracluster SSH Keys
+Creating intracluster keys
+Once you're logged into the login node (i.e., klone-login01 or klone.hyak.uw.edu) you'll use this as a host to submit jobs, transfer data, or navigate your environment. However, you may find yourself needing to either submit multi-node (i.e., MPI) jobs or log into a node after you have a job running there to check its progress. For this you need SSH keys set up for intracluster access. You can generate an SSH key from the login node using the command below.
+
+ssh-keygen -C klone -t rsa -b 2048 -f ~/.ssh/id_rsa -q -N ""
+
+This command creates a 2048-bit RSA key with klone in the comment field.
+
+Authorizing the keys
+You will also need to add the contents of your public key to the authorized_keys file in your home directory with the following commands:
+
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+
+This also ensures the authorized_keys file has appropriate permissions.
+
+Previous
+SSH & Login Node Usage
+Next
+SSH Port Forwarding
+Creating intracluster keys
+Authorizing the keys
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

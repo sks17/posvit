@@ -1,0 +1,786 @@
+       Delving Deep into the Generalization of Vision Transformers
+                              under Distribution Shifts
+
+Chongzhi Zhang1,*, Mingyuan Zhang2,*, Shanghang Zhang3,*, Daisheng Jin1, Qiang Zhou4,
+                 Zhongang Cai2,5, Haiyu Zhao2,5, Xianglong Liu1, Ziwei Liu2,
+
+               1Beihang University 2S-Lab, Nanyang Technological University
+         3Peking University 4AIR, Tsinghua University 5Shanghai AI Laboratory
+
+                        Abstract                                1. Introduction
+
+   Vision Transformers (ViTs) have achieved impressive             Recently, transformer has made remarkable achievements
+performance on various vision tasks, yet their generaliza-      in vision tasks, such as e.g. image classification [7, 8, 27], ob-
+tion under distribution shifts (DS) is rarely understood. In    ject detection [4, 36], and image processing [6]. Despite the
+this work, we comprehensively study the out-of-distribution     encouraging performance achieved on standard benchmarks
+(OOD) generalization of ViTs. For systematic investiga-         and several properties revealed in recent works [1, 5, 20, 21],
+tion, we first present a taxonomy of DS. We then perform        the generalization ability of Vision Transformers (ViTs) is
+extensive evaluations of ViT variants under different DS        still less understood. While the traditional train-test scenario
+and compare their generalization with Convolutional Neu-        assumes the test data for model evaluation are independent
+ral Network (CNN) models. Important observations are            identically distributed (IID) with sampled training data, this
+obtained: 1) ViTs learn weaker biases on backgrounds and        assumption does not always hold in real-world scenarios.
+textures, while they are equipped with stronger inductive       Thus, out-of-distribution (OOD) generalization is a highly
+biases towards shapes and structures, which is more con-        desirable capability of machine learning models. Recent
+sistent with human cognitive traits. Therefore, ViTs gen-       works indicate current CNN architectures generalize poorly
+eralize better than CNNs under DS. With the same or less        on various distribution shifts (DS) [11, 13, 14], whereas the
+amount of parameters, ViTs are ahead of corresponding           investigation on ViTs remains scarce. Therefore, in this
+CNNs by more than 5% in top-1 accuracy under most types         paper, we mainly focus on delving deep into the OOD gener-
+of DS. 2) As the model scale increases, ViTs strengthen         alization of ViTs under DS.
+these biases and thus gradually narrow the in-distribution
+and OOD performance gap. To further improve the gener-             To comprehensively study the OOD generalization ability
+alization of ViTs, we design the Generalization-Enhanced        of ViTs, we first define a categorization of commonly appear-
+ViTs (GE-ViTs) from the perspectives of adversarial learn-      ing DS based on the modified semantic concepts in images.
+ing, information theory, and self-supervised learning. By       Generally, an image for classification contains a foreground
+comprehensively investigating these GE-ViTs and comparing       object and background information. The foreground object
+with their corresponding CNN models, we observe: 1) For         consists of hierarchical semantic concepts including pixel-
+the enhanced model, larger ViTs still benefit more for the      level elements, object textures, and shapes, object parts, and
+OOD generalization. 2) GE-ViTs are more sensitive to the        object itself [35]. A distribution shift usually causes variance
+hyper-parameters than their corresponding CNN models. We        on one or more semantics and we thus present a taxonomy
+design a smoother learning strategy to achieve a stable train-  of DS into four conceptual groups: background shifts, cor-
+ing process and obtain performance improvements on OOD          ruption shifts, texture shifts, and style shifts.
+data by 4% from vanilla ViTs. We hope our comprehensive
+study could shed light on the design of more generalizable         With the taxonomy of DS, we investigate the OOD gen-
+learning architectures. Codes and datasets are released in      eralization of ViTs by comparison with CNNs in each case.
+https://github.com/Phoenix1153/ViT OOD generalization.          While models are desired to generalize to arbitrary OOD
+                                                                scenarios, the no-free-lunch theorem for machine learn-
+     *These authors contributed equally to this work.           ing [3, 12, 32] demonstrates that there is no entirely general-
+       Corresponding author.                                    purpose learning algorithm, and that any learning algorithm
+                                                                implicitly or explicitly will generalize better on some dis-
+                                                                tributions and worse on others. Thus some set of induc-
+                                                                tive biases are demanded to acquire generalization. Hence,
+
+                                                                7277
+to achieve human-level generalization capability, machine       Table 1. Illustration of our taxonomy of DS. We build the tax-
+learning models are supposed to have inductive biases that      onomy upon what kinds of semantic concepts are modified from
+are most relevant to the human prior in the world. There        the original image and divide the DS into four cases: background
+have been many attempts to inject inductive biases into deep    shifts, corruption shifts, texture shifts, and style shifts.  denotes
+learning models that humans may exploit for the cognition       the unmodified vision cues under certain type of DS.
+operating at the level of conscious processing, e.g. the con-
+volution [16] and self-attention mechanism [29]. Therefore,               Shift Type    background  pixel       foreground  structure
+we examine whether transformers are equipped with induc-                                                   texture shape
+tive biases that are more related to human cognitive traits           Background Shift                                          
+to better investigate the generalization properties of ViTs           Corruption Shift                                          
+under DS. Extensive evaluations reveal the following ob-                                                                        
+servations on the OOD generalizations of ViTs: 1) ViTs                  Texture Shift                                           
+learn weaker biases on backgrounds and textures, while they               Style Shift
+are equipped with stronger inductive biases towards shapes                                                   
+and structures, which is more consistent with human cogni-
+tive traits. Therefore, ViTs generalize better than CNNs in     of Vision Transformers in this paper.
+most cases. Specifically, ViT not only achieves better per-     Out-of-distribution Generalization. Attracting much atten-
+formance on OOD data but also has smaller generalization        tion recently, various works have been proposed for OOD
+gaps between IID and OOD datasets. 2) As the model scale        generalization under different settings. Most domain adapta-
+increases, ViTs strengthen these biases and thus gradually      tion literatures aim at promoting the model's performance
+narrow the IID and OOD generalization gaps, especially in       under distribution shift with access to the unlabeled target
+the case of corruption shifts and background shifts. In other   data [10,19,26]. Another setting for OOD generalization con-
+words, larger ViTs are better at diminishing the effect of      centrates on learning representations without access to target
+local changes. 3) ViTs trained with larger patch size deal      data, commonly referred as domain generalization [9,17,30].
+with texture shifts better, yet are inferior in other cases.    In addition, some recent works model OOD generalization
+                                                                on their newly-built benchmarks [11, 13, 14]. Though recent
+   After validating the superiority of ViTs in dealing with     works [1, 5, 20, 21] have studied several properties of ViTs,
+OOD data, we focus on further improving their general-          the generalization of ViTs is still under explored.
+ization capacity. Specifically, we design Generalization-
+Enhanced ViTs (GE-ViTs) from the perspectives of adversar-      3. Distribution Shifts and Evaluation Protocols
+ial training [10], information theory [24] and self-supervised
+learning [34]. Equipped with GE-ViTs, we achieve signif-        3.1. Taxonomy of Distribution Shifts
+icant performance boosts towards OOD data by 4% from
+vanilla ViTs. By performing an in-depth investigation on           To make an extensive study on OOD generalization, we
+different models, we draw the following conclusions: 1) For     build the taxonomy of DS upon what kinds of semantic con-
+the enhanced transformer models, larger ViTs still benefit      cepts are modified from the original image. Therefore, we
+more for the OOD generalization. 2) GE-ViTs are more            divide the DS into four cases: background shifts, corruption
+sensitive to the hyper-parameters than their corresponding      shifts, texture shifts and style shifts, as shown in Tab. 1. The
+CNN models.                                                     elaborately divided DS permit us to investigate model biases
+                                                                towards every visual cue respectively.
+2. Related Work
+                                                                · Background Shifts. Image backgrounds are usually re-
+Vision Transformers. Recently, Transformers have been             garded as auxiliary cues in assigning images to correspond-
+applied to various vision tasks including image classification    ing labels in the image classification task. However, pre-
+[7, 8, 27], object detection [4, 36], segmentation [31] and       vious works have demonstrated that backgrounds may
+image processing [6]. Among them, the Vision Transformer          dominate in prediction [2, 23], which is undesirable to us.
+(ViT) [8] is the first fully-transformer model applied for        We focus on the model's invariance towards background
+image classification and competitive with state-of-the-art        change and thus define the background shifts. ImageNet-
+CNNs. It heavily relies on large-scale datasets for model         9 [33] is adopted for background shifts.
+pre-training, requiring huge computation resources. Later,
+[27] propose the Data-efficient image Transformer (DeiT),       · Corruption Shifts. The concept of corruption was pro-
+which achieves competitive results against the state-of-the-      posed in [14], which stands for those naturally occurring
+art CNNs on ImageNet without external data by simply              vicinal impurities mixed in images. These corruptions ei-
+changing training strategies from ViT. Due to its efficiency,     ther come from environmental influence during the shoot-
+we use this family of models to investigate generalizations       ing stage or from the image processing stage. We define
+                                                                  these cases as corruption shifts, which only impact on
+                                                                  object pixel-level elements while can still cause models
+                                                                  obvious performance decrease. ImageNet-C [14] is used
+                                                                  to examine generalization ability under corruption shifts.
+
+                                                                7278
+· Texture Shifts. Generally, the texture gives us information                                                                                                         IID/OOD generalization gap to measure the performance
+  about the spatial arrangement of the colors or intensities in                                                                                                       difference caused by the distribution shift:
+  an image, which is critical for the classifiers in obtaining a
+  correct prediction. Thus, a replacement of object textures                                                                                                            Gap(F,C;\mathscr {D}_{iid},\mathscr {D}_{ood})=Acc(F,C;\mathscr {D}_{iid})-Acc(F,C;\mathscr {D}_{ood}). \label {equa: generalization gap OOD} 
+  can influence model prediction. We define these varia-                                                                                                                                                                               (2)
+  tions as texture shifts. Cue Conflict Stimuli and Stylized-
+  ImageNet [11] are used to investigate generalization under                                                                                                    4. Generalization-Enhanced ViTs
+  texture shifts.
+                                                                                                                                                                   After investigating the OOD generalization properties of
+· Style Shifts. Typically, style is a complicated concept                                                                                                       ViTs, it is natural to figure out strategies to further improve
+  determined by the characteristics that describe the artwork,                                                                                                  them. Thus we further design Generalization-Enhanced ViTs
+  such as the form, color, composition, etc. The variance of                                                                                                    (GE-ViTs) from the perspectives of adversarial training [10],
+  style often reflects in multiple concept levels, including                                                                                                    information theory [24] and self-supervised learning [34],
+  texture, shape and object part, etc. ImageNet-R [13] and                                                                                                      named as T-ADV, T-MME, and T-SSL respectively. By
+  DomainNet [22] are used for the case of style shifts.                                                                                                         making a full comparison of these three designs, we figure
+                                                                                                                                                                out the most suitable strategy for GE-ViTs.
+3.2. Model Zoo
+                                                                                                                                                                4.1. Adversarial Learning
+· Vision Transformer. We follow the implementation in
+  DeiT [27] and choose a range of models with different                                                                                                            To learn domain-invariant representations, we introduce
+  scales for experiments. The ViT architecture takes as input                                                                                                   a domain discriminator [10] to promote the backbone to
+  a grid of non-overlapping contiguous image patches of                                                                                                         produce domain-confused features by adversarial training.
+  resolution N × N . In this paper we typically use N = 16                                                                                                      Specifically, as shown in Fig 1 (a), the network consists
+  ("/16") or N = 32 ("/32"). Besides the official DeiT                                                                                                          of a shared feature encoder F , a label predictor C, and a
+  models, we also utilize the data-efficient training scheme                                                                                                    domain classifier D. The feature encoder aims at minimizing
+  to train ViT-L/16 and ViT-B/32 and rename them DeiT-                                                                                                          the domain confusion loss LADV for all samples and label
+  L/16 and DeiT-B/32.                                                                                                                                           prediction loss LCLS for labeled source samples while the
+                                                                                                                                                                domain classifier focus on maximizing the domain confusion
+· Big Transfer. Big Transfer models [15] are build on                                                                                                           loss LADV. The overall objectives are:
+  ResNet-V2 models. We select BiT-S-R50X1 based on
+  a ResNet-50 backbone. Besides the official implemen-                                                                                                                  \mathcal {L}_{\mathrm {CLS}} = \sum _{(\mathrm {x},y)\in \mathscr {D}_s} \mathcal {H}(\sigma (C(F(\mathrm {x}))),y),   (3)
+  tation, we also train a version using the identical data
+  augmentation strategy from DeiTs for comparison. We
+  respectively name them BiT and BiTda.
+
+3.3. Evaluation Protocols
+
+In image classification tasks, a model generally consists                                                                                                               \mathcal {L}_{\mathrm {ADV}} = \sum _{(\mathrm {x},y_{d})\in \mathscr {D}_s,\mathscr {D}_t} \mathcal {H}(\sigma (D(F(\mathrm {x}))),y_{d}),  (4)
+
+of a feature encoder F and a classifier C. Suppose the
+
+model  is  trained  on  a  training  set  Dtrain  =  {(xi,  yi  )}Ntrain  .                                                                                             (\hat {\theta }_F,\hat {\theta }_C) = \arg \min _{\theta _F,\theta _C} \mathcal {L}_{\mathrm {CLS}} + \lambda _{adv} \mathcal {L}_{\mathrm {ADV}},  (5)
+
+                                                                   i=1
+
+We respectively introduce a set of independent identically
+
+distributed (IID) validation data Diid = {(xi, yi)}iN=i1id and a                                                                                                        \hat {\theta }_D = \arg \max _{\theta _D} \mathcal {L}_{\mathrm {ADV}},                                                (6)
+set of out-of-distributed (OOD) data Dood = {(xi, yi)}Ni=o1od
+
+in the same semantic space. Ntrain, Niid, Nood represent                                                                                                        where y and yd denote the class label and binary domain
+                                                                                                                                                                label respectively. (·) stands for the Softmax function and
+the number of data in Dtrain, Diid, Dood respectively. Then                                                                                                     H(·, ·) returns the cross-entropy of two input distributions.
+                                                                                                                                                                adv is an adaptive coefficient that gradually changed from
+we use the following evaluations.                                                                                                                               0 to 1 by the schedule proposed in [10]. Furthermore, to
+                                                                                                                                                                facilitate training, a gradient reversal layer (GRL) is applied
+· Accuracy on OOD Data. A direct measurement is to                                                                                                              to implement the opposite objective of two parts.
+  calculate the accuracy on the OOD dataset:
+                                                                                                                                                                4.2. Minimax Entropy
+     Acc(F,C;\mathscr {D}_{ood})=\frac {1}{|\mathscr {D}_{ood}|}\sum _{({\rm x},y)\in \mathscr {D}_{ood}} \mathbbm {1}(C(F({\rm x})) = y), \label {equa: acc} 
+                                                                                                                                                                   We leverage the minimax process on the conditional
+                                                                    (1)                                                                                         entropy of target data [24] to reduce the distribution gap
+                                                                                                                                                                while learning discriminative features for the task. As the
+  where 1 is the indicator function.                                                                                                                            pipeline is shown in Fig. 1 (b), a cosine similarity-based
+
+· IID/OOD Generalization Gap. In this paper, we also
+  focus on how well a model could behave towards the
+  OOD data compared with the IID data. Hence, we use the
+
+                                                                                                                                                                7279
+                                   Source Domain                                                                                                                            Source Domain
+
+                                                     Transformer                                                                   Class    Label                                                  Transformer    Class               normalization   Cosine
+                                                       Encoder                                                                     Token  Predictor                                                  Encoder      Token                              Classifier
+
+                                   Target Domain                                                                                           Domain                           Target Domain                                                              -
+                                                                                                                                          Classifier
+                                                                                                                                                                                                                            gradient
+                                                                                                                                                                                                                            reversal
+
+                                                                                                                                                                                                                              layer
+
+                                                     -
+
+                                                     (a) T-ADV                                                                                                                                                  (b) T-MME
+
+                                                                  
+                                                                   
+
+                                                                                                                                                                                                                                                     Source data forward
+
+                                                                                                                                                                                                                                                     Target data forward
+                                                                                                                                                                                                                  
+                                   Source Domain                                                                                                                                           update
+                                   Target Domain                                                                                                                                                                 Cosine
+                                                                                                                                                                                                                Classifier                           All data forward
+
+                                                                                                                                                                Normalized  -means          Source                                    
+                                                                                                                                                                   Source   -means         Memory                           
+                                                     Transformer  Class                                                                    normalization                                                                                             Source data backward
+                                                       Encoder    Token                                                                                         Prototypes                   Bank
+                                                            
+                                                                                                                                                                Normalized                  Target
+                                                                                                                                                                   Target                  Memory                                     
+
+                                                                                                                                                                Prototypes                   Bank
+
+                                                                                                                                                                                           update                                                    Target data backward
+
+                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                   
+                                                                                                                                                                                                                                                     All data backward
+
+                                                                    
+                                                                     
+
+                                                                                        (c) T-SSL
+Figure 1. A framework overview of the three designed generalization-enhanced ViTs. All networks use a ViT F as feature encoder and a
+label prediction head C. Under this setting, the inputs to the models have labeled source examples and unlabeled target examples. a) T-ADV
+promotes the network to learn domain-invariant representations by introducing a domain classifier D for domain adversarial training. b)
+T-MME leverage the minimax process on the conditional entropy of target data to reduce the distribution gap while learning discriminative
+features for the task. The network uses a cosine similarity-based classifier architecture C to produce class prototypes. c) T-SSL is an
+end-to-end prototype-based self-supervised learning framework. The architecture uses two memory banks V s and V t to calculate cluster
+centroids. A cosine classifier C is used for classification in this framework.
+
+classifier architecture C is exploited to produce class pro-                                                                                                                        4.3. Self-Supervised Learning
+
+totypes. The cosine classifier C consists of weight vectors
+
+W = [w1, ..., wnc ], where nc denotes the total number of                                                                                                                                          We integrate an end-to-end prototypical self-supervised
+
+classes,  and  a  temperature  T.  C  takes          2            normalized                                                                               F (x)                    learning framework [34] into ViT. As shown in Fig. 1 (c),
+                                                                                                                                                          F (x)
+                                                                                                                                                                                    the framework also uses a cosine classifier C as introduced
+                            1  WTF (x)
+as  an  input  and  output  T   F (x)             .  The  key        idea                                                                 is              to  mini-                 in Sec. 4.2. It first encodes semantic structure of data into
+
+mize the distance between the class prototypes and neighbor-                                                                                                                        the embedding space. ProtoNCE [18] is respectively applied
+
+ing unlabeled target samples, thus extracting discriminative                                                                                                                        in source and target domains. Specifically, two memory
+                                                                                                                                                                                    banks V s and V t are maintained to store feature vectors
+target features. To overcome the dominant impact of labeled
+
+source data on prototypes, prototypes are moved towards                                                                                                                             of every sample from source and target. These vectors are
+
+the target by maximizing the entropy LE of unlabeled target                                                                                                                         updated with momentum after each batch. k-means cluster-
+
+examples. Meanwhile, the feature extractor aims at mini-                                                                                                                            ing is performed on memory banks to generate normalized
+
+mizing the entropy of the unlabeled examples, to make them                                                                                                                          prototypes {µjs}jk=1 and {µtj}kj=1. Then the similarity distri-
+
+better clustered around the prototypes. Therefore, a minimax                                                                                                                        bution          vFFec((txxoissi r))beftrwomeencur2rennotrmbaatlcizhedansdounrocermfeaalitzuered                 vectors
+                                                                                                                                                                                    fis =                                                                                                           source
+process is formulated between the weight vectors and the fea-
+
+ture extractor. Additionally, the label prediction loss LCLS is                                                                                                                     prototypes {µsj }kj=1 as Pis = [Pis,1, ..., Pis,k] with Pis,j =
+
+also utilized on source samples. The overall objectives are:                                                                                                                                       , exp(µjs ·fis /)
+
+                                                                                                                                                                                           k        exp(µrs ·fis/)                    where                             is  a  temperature      value.     Then
+                                                                                                                                                                                           r=1
+            \mathcal {L}_{\mathrm {CLS}} = \sum _{(\mathrm {x},y)\in \mathscr {D}_s} \mathcal {H}(\sigma (C(F(\mathrm {x}))),y),                                (7)
+                                                                                                                                                                                    the in-domain prototypical self-supervision loss is formed
+
+                                                                                                                                                                                    as: LIS =                               |Ds |     H(Pis          ,  cs       (i))      +   |Dt |  H(Pit  ,  ct  (i)),  where
+                                                                                                                                                                                                                            i=1                                                i=1
+
+                    \mathcal {L}_{\mathrm {E}} = \sum _{\mathrm {x}\in \mathscr {D}_t} \mathcal {H}(\sigma (C(F(\mathrm {x})))),                                (8)                 cs(·) and ct(·) return the cluster index of the sample, and
+
+                                                                                                                                                                                    | · | returns the cardinal of the set. H(·, ·) returns the cross-
+
+                                                                                                                                                                                    entropy of two input distributions.
+
+                    \hat {\theta }_F = \arg \min _{\theta _F} \mathcal {L}_{\mathrm {CLS}} + \lambda _{e}\mathcal {L}_{\mathrm {E}},                            (9)                    In addition, since a network is desired to have high-
+                                                                                                                                                                                    confident and diversified predictions, an objective is set for
+                    \hat {\theta }_C = \arg \min _{\theta _C} \mathcal {L}_{\mathrm {CLS}} - \lambda _{e}\mathcal {L}_{\mathrm {E}},                            (10)                maximizing the mutual information between the input image
+                                                                                                                                                                                    and the network prediction. This objective is split into two
+where H(·, ·) returns the cross-entropy of two input distri-                                                                                                                        terms: entropy maximization of expected network prediction
+butions and H(·) returns the entropy. e is a coefficient to                                                                                                                         and entropy minimization on the network output. Therefore,
+balance two loss terms.                                                                                                                                                             the objective is formulated as: LMIM = Ex[H(p(y|x; )] -
+
+                                                                                                                                                                            7280
+                                                        
+                                                        
+                                                                                                                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                                                                             
+22'$FFXUDF\                                                                                                                                                                                                                                                                                                   
+                                                                                     ,,'22'*HQHUDOL]DWLRQ*DS
+                                                                                                                                                                                                                                                                                                                       QRLVH
+                                                                                                                                                                           22'$FFXUDF\2QO\)*                                                          
+                                                                                                                                                                                                                                                      ,,'22'*HQHUDOL]DWLRQ*DS
+
+
+                                                                                                                                                                                                                                                      
+
+
+
+               'HL7/   'HL7%                                                                                                                                                                                                                          
+                       %L7
+               'HL7%   %L7da
+
+               'HL76    0L[HG6DPH 0L[HG5DQG                                                                                                                                                                                                           
+                       %*VKLIW7\SH
+               'HL77L
+
+               2QO\)*                        0L[HG1H[W                     0L[HG6DPH 0L[HG5DQG  0L[HG1H[W                                                                                                                                             ,PDJH1HWFOHDQ QRLVH  EOXU            ZHDWKHU  GLJLWDO                   EOXU       ZHDWKHU    GLJLWDO
+     2ULJLQDO                                                                      %*VKLIW7\SH                                                                                                                                                                             &RUUXSWLRQ7\SH                                           &RUUXSWLRQ7\SH
+
+                       (a)                                                 (b)                                                                                                                                                                                             (c)                                                      (d)
+
+Figure 2. Results on ImageNet-9 and ImageNet-C. (a)-(b) and (c)-(d) respectively illustrate the OOD Accuracy and IID/OOD Generalization
+
+Gap for different models on ImageNet-9 and ImageNet-C datasets. From (a) and (b), we conclude that 1) ViTs perform with a weaker
+
+background-bias than CNNs, 2) a larger ViT extracts a more background-irrelevant representation. From (c) and (d), we draw the conclusions
+
+that 1) ViTs deal with corruption shifts better than CNNs and generalize better along with model size scaling up, 2) ViTs do benefit from
+
+diverse augmentation in enhancing generalization towards vicinal impurities, but their architectural advantage cannot be overlooked as well,
+
+3) patch size for training has little influence on ViTs' generalization ability.
+
+H(ExDsDt [p(y|x; ]). The last term of training objective                                                                                                                                                                                              gaps between Mixed-Same and Mixed-Next. In addition,
+is the supervision loss on source domain measured by cross-                                                                                                                                                                                           comparing two BiT models, BiTda outperforms normal BiT
+entropy: LCLS = (x,y)Ds H((C(F (x))), y).                                                                                                                                                                                                             in OOD accuracy and achieves lower IID/OOD Gaps, in-
+                                                                                                                                                                                                                                                      dicating that diverse augmentation during training exerts
+    Finally, the overall learning objective is formulated as:                                                                                                                                                                                         a salutary effect on model generalization on background-
+                                                                                                                                                                                                                                                      shifted data. Nonetheless, it is worth noticing that BiTda
+   (\hat {\theta }_F, \hat {\theta }_C) = \arg \min _{\theta _F,\theta _C} \mathcal {L}_{\mathrm {CLS} + \lambda _{\mathrm {is} \mathcal {L}_{\mathrm {IS} + \lambda _{\mathrm {mim} \mathcal {L}_{\mathrm {MIM}, \label {equa: PCS objective}  (11)  obtain a larger Same-Rand gap and Same-Next gap, which
+                                                                                                                                                                                                                                                      demonstrates that the augmentation training scheme can-
+where is and mim denotes the coefficients of correspond-                                                                                                                                                                                              not alleviate the model's dependence on correct background
+ing loss terms.                                                                                                                                                                                                                                       information. Therefore, ViTs perform with a weaker back-
+                                                                                                                                                                                                                                                      ground bias than CNNs, and such property is brought by
+5. Systematic Study on ViTs Generalization                                                                                                                                                                                                            their architectures.
+                                                                                                                                                                                                                                                      - A larger ViT extracts a more background-irrelevant
+In-Distribution Generalization. We first examine the in-                                                                                                                                                                                              representation. Via comparing ViTs of different sizes, we
+distribution generalization of different models on the Ima-                                                                                                                                                                                           can observe that a larger ViT architecture contributes to
+geNet benchmark. As results are shown in Fig. 2 (c) col-                                                                                                                                                                                              a better OOD performance as well as a smaller IID/OOD
+umn 1, we have the following observations. 1) With the                                                                                                                                                                                                gap. Even DeiT-L/16 could further narrow the gap by about
+data-efficient training scheme, DeiT models tend to perform                                                                                                                                                                                           2% from DeiT-B/16, while they achieve almost the same
+better as scales increase from tiny to large, but the gain of                                                                                                                                                                                         in distribution accuracy results. Meanwhile, a larger ViT
+scale growth gradually dwindles. 2) Having almost the same                                                                                                                                                                                            also achieves a lower Same-Rand gap and Same-Next gap,
+parameters and both trained without external data, DeiT-S/16                                                                                                                                                                                          showing that there exists a positive correlation between the
+could beat BiT and BiTda.                                                                                                                                                                                                                             ViT scale and their ability to exclude distraction provided by
+                                                                                                                                                                                                                                                      irrelevant or conflict backgrounds. Hence, it is clear that a
+5.1. Background Shifts Generalization Analysis                                                                                                                                                                                                        larger ViT tends to focus more attention on the foreground
+                                                                                                                                                                                                                                                      and learn a more background-irrelevant representation.
+    We utilize ImageNet-9, a variety of foreground-
+background recombination plans, to investigate model bias                                                                                                                                                                                             5.2. Corruption Shifts Generalization Analysis
+towards background signal. These datasets empower us to
+investigate to what extent model decisions rely on the back-                                                                                                                                                                                              The corruption results of 4 categories averaged over all
+ground signal. The OOD accuracy and IID/OOD gap results                                                                                                                                                                                               subclasses and all severities, are shown in Fig. 2 (c) and (d).
+of four varieties of background shifts are illustrated in Fig. 2                                                                                                                                                                                      - ViTs deal with corruption shifts better than CNNs and
+(a) and (b) respectively.                                                                                                                                                                                                                             generalize better along with model size scaling up. There
+- ViTs perform with a weaker background-bias than                                                                                                                                                                                                     exist similar phenomena with the background shifts cases
+CNNs. By calculating accuracy gaps between Mixed-Same                                                                                                                                                                                                 that most ViTs lead the BiT models to a large extent under
+with class-relevant backgrounds and Mixed-Rand with neu-                                                                                                                                                                                              both evaluations in all situations, and that a larger ViT archi-
+tral background signals, we can measure classifiers' reliance                                                                                                                                                                                         tecture achieves a better OOD performance and narrows the
+on the correct background. From Fig. 2 (a), the lower gaps                                                                                                                                                                                            IID/OOD generalization gap.
+achieved by ViTs indicate that ViTs depend less on corre-                                                                                                                                                                                             - ViTs benefit from diverse augmentation in enhancing
+sponding background signals when the correct foreground                                                                                                                                                                                               generalization towards vicinal impurities, but their ar-
+is present. Likewise, it can be concluded that ViTs are less
+misled by the conflict background based on the accuracy
+
+                                                                                                                                                                                                                                                      7281
+                                            'HL7/
+
+                                            'HL7%                                                                                                                                                       
+
+                                            'HL76
+
+                                            'HL77L                                     
+
+                                            'HL7%
+
+                                            %L7                                                                                                                                                         
+
+                                            %L7da                                      
+
+                 
+                                                                                                            
+                                                                                                                                                                                                      
+                   
+                                                                                                                                                                                                        
+
+                   
+
+                                                                                       
+
+                                                                                                                                                                                                        
+
+                                                                                       
+
+                                          22'$FFXUDF\ ,,'22'*HQHUDOL]DWLRQ*DS            6KDSH$FFXUDF\              7H[WXUH$FFXUDF\                                                                                            22'$FFXUDF\ ,,'22'*HQHUDOL]DWLRQ*DS
+                           ,,'$FFXUDF\      (YDOXDWLRQ                                                                                                                                                          ,,'$FFXUDF\      (YDOXDWLRQ
+                                                                                                        (YDOXDWLRQ
+
+                           (a) Stylized-ImageNet                                         (b) Cue Conflict Stimuli                                                                                              (c) ImageNet-R
+
+Figure 3. Results on Stylized-ImageNet, Cue Conflict Stimuli and ImageNet-R. (a), (b) and (c) respectively illustrate the OOD Accuracy
+
+and IID/OOD Generalization Gap for different models on Stylized-ImageNet, Cue Conflict Stimuli, and ImageNet-R data sets. From (a) and
+(b) we could draw the following conclusions that 1) ViTs' stronger bias towards shape enables them to generalize better under texture shifts
+and their shape biases have a positive correlation with their sizes, 3) ViTs with larger patch size exhibit a stronger bias towards the shape.
+
+From (c) we observe that most ViTs beat BiTs in OOD accuracy while having little difference in the IID/OOD generalization gap.
+
+     FOS    SQW      UHtO    VNW          $YJ*DS         FOS    SQW              UHtO    VNW    $YJ*DS              FOS              SQW    UHtO                                                        VNW    $YJ*DS               FOS    SQW    UHtO                VNW    $YJ*DS
+
+FOS                                                 FOS                                                   FOS                                                                                                                  FOS                                           
+
+SQW                                                 SQW                                                   SQW                                                                                                                  SQW                                           
+
+s                                                   s                                                     s                                                                                                                    s
+
+UHO                                                 UHO                                                   UHO                                                                                                                  UHO                                           
+
+VNW                                                 VNW                                                   VNW                                                                                                                  VNW                                           
+
+                                                                                                                                                                                                                                                                                     
+
+                                                                                                                                                                                                                                                  
+
+            (a) DeiT-B/16                                       (b) DeiT-S/16                                                             (c) BiT                                                                                          (d) BiTda
+
+Figure 4. Results on DomainNet. From the results, we can conclude that 1) DeiT-S/16 performs better on the small-scale datasets in IID
+
+conditions. Thus, the model easily outperforms BiTs in OOD accuracy, 2) when inspecting the IID/OOD generalization gap, the results
+
+differ a lot. When models are trained on clipart and painting, there is no obvious difference of gap between DeiT-S/16 and BiTs.
+
+chitectural advantage cannot be overlooked. Compared                                                         flict Stimuli that most ViTs achieve higher shape accuracy
+with BiT, BiTda constantly achieves about 4% better in OOD                                                   and lower texture accuracy than BiTs, which demonstrates
+performances and IID/OOD gaps, emphasizing the contribu-                                                     that ViTs' insensitivities towards texture shifts are owed to
+tion of diverse augmentation to model insensitivity towards                                                  their stronger bias on shape than CNNs. Meanwhile, there
+pixel-level shifts. However, most ViT models are still ahead                                                 exists an uptrend of shape accuracy and a downtrend of tex-
+of BiTda under both evaluations, manifesting ViTs' perfor-                                                   ture accuracy as the ViT size increases. Hence, ViTs' shape
+mance can be partially attributed to the architecture design.                                                biases have a positive correlation with their sizes.
+- Patch size for training has little influence on ViTs' gener-                                               - ViTs with larger patch size exhibit a stronger bias to-
+alization ability. Though DeiT-B/16 achieves higher OOD                                                      wards the shape. On Stylized-ImageNet, DeiT-B/32 be-
+accuracy than DeiT-B/32, its counterpart trained with a larger                                               haves better than DeiT-B/16 in OOD accuracy and IID/OOD
+patch size 32 × 32, there is little difference between their                                                 generalization gap, which is opposite to their performances
+IID/OOD gaps. Therefore, patch size for training exert a pe-                                                 on ImageNet. Meanwhile, on Cue Conflict Stimuli, DeiT-
+ripheral effect on generalization ability from in-distribution                                               B/32 is less affected by the misleading texture than DeiT-
+data to out-of-distribution data, but only act on the model                                                  B/16, resulting in a higher shape accuracy. Therefore, ViTs
+in-distribution generalization.                                                                              with larger patch size rely less on local texture features and
+                                                                                                             focus more on global high-level features, i.e. they show
+5.3. Texture Shifts Generalization Analysis                                                                  stronger bias towards shape lower bias towards texture.
+
+    The results on Stylized-ImageNet and Cue Conflict Stim-                                                  5.4. Style Shifts Generalization Analysis
+uli are shown in Fig. 3 (a) and (b).
+- ViTs' stronger bias towards shape enables them to gen-                                                     - ViTs have diverse performance on IID/OOD general-
+eralize better under texture shifts and their shape biases                                                   ization gap under Style shifts. The results on ImageNet-R
+have a positive correlation with their sizes. It could be                                                    are shown in Fig. 3 (c). As ImageNet-R only contains 200
+observed from results on Stylized-ImageNet that ViTs lead                                                    classes of ImageNet, we follow [13] to record accuracy on
+BiT models under both evaluations and a larger ViT archi-                                                    the ImageNet subset (ImageNet-200) and regard it as the
+tecture achieves a better OOD performance, which indicates                                                   IID result. When focusing on the accuracy on ImageNet-R,
+that ViTs deal with the texture shifts better and a larger                                                   we observe most ViTs beat BiTs in OOD accuracy, while
+ViT contributes to better leveraging global semantic features                                                having similar performance in IID/OOD generalization gap.
+(such as shape and object parts) and less affected by local                                                  Accordingly, ViTs do not have competitive edges in gen-
+changes. These phenomena reappear in results on Cue Con-                                                     eralizing from real images to art renditions. For Domain-
+
+                                                                                                          7282
+                   original                                                                                                                                              Net, we mainly compare the models with the same scale,
+                                                                                                                                                                         i.e. DeiT-S/16 and BiTs, whose results are shown in Fig. 4.
+                   BiT                                                                                                                                                   We observe DeiT-S/16 performs better on the small-scale
+                                                                                                                                                                         datasets under IID and thus the model easily outperforms
+                   DeiT-S                                                                                                                                                BiTs in OOD accuracy. When inspecting the IID/OOD gen-
+                                                                                                                                                                         eralization gap, the results differ a lot. When models are
+                                    real                        painting                             sketch             quickdraw                                        trained on clipart and painting, there is no obvious differ-
+                                                                                                                                                                         ence between DeiT-S/16 and BiTs. But for real, DeiT-S/16
+                                                                       (a)                                                                                               leads BiTs over 4%, which can be explained as ViTs utilize
+                                                                                                                                                                         the knowledge from pre-train data better if the pre-train data
+                                                                                                             'HL7%                                                       and downstream data are from similar distributions.
+                                                                                                             'HL76
+                                                                                                             %L7                                                         - ViTs shows stronger bias towards object structure. We
+                                                                                                             %L7da                                                       further investigate how models shall behave as the other
+                                                                                                                                                                         available visual cues come to degrade until there only re-
+                                        $FFXUDF\                                                                                                                         mains structural information. We illustrate examples of class
+                                                                                                                                                                         parachute of four domains and the Grad-CAM [25] attention
+                                                                                                                                                                         maps of both BiT and DeiT-S in Fig. 5 (a). We shall ob-
+                                                                                                                                                                         serve that, as the color, texture, and shape cues become less
+                                                                           SDLQWLQJ      'RPDLQ  VNHWFK      TXLFNGUDZ                                                   and less informative from real to quickdraw and even there
+                                                      UHDO                                                                                                               is only abstract structure preserved in quickdraw, DeiT-S
+                                                                                                                                                                         constantly concentrates on the key structural information of
+                                          (b)                                                                                                                            parachutes while BiT fails to capture such essential feature.
+Figure 5. Structure bias investigation. (a) illustrates examples of                                                                                                      In addition, we test the accuracies of models trained with
+                                                                                                                                                                         real on different domains. Since there are a considerable
+class parachute of four domains and the Grad-CAM [25] attention                                                                                                          number of unrecognizable data in quickdraw, we exclude
+                                                                                                                                                                         classes on which both ViTs and CNNs achieve accuracies
+maps of both BiT and DeiT-S. We shall observe that, as the color,                                                                                                        less than 10%. We show the results in Fig. 5 (b), from which
+                                                                                                                                                                         we can see that the gap between ViTs and CNNs are get-
+texture, and shape cues become less and less informative from real                                                                                                       ting larger when the tested domain contain less visual cues
+                                                                                                                                                                         (i.e. from real to quickdraw). Based on observations and
+to quickdraw and even there is only abstract structure preserved in                                                                                                      analyses above, we can conclude that ViTs are less effected
+                                                                                                                                                                         by the shift of color, texture, and shape features, indicating
+quickdraw, DeiT-S constantly concentrates on the key structural                                                                                                          that ViTs focus more on structures.
+
+information of parachutes while BiT fails to capture such essential                                                                                                      - ViTs will eliminate different levels of DS in different
+                                                                                                                                                                         layers. We select a set of classes of four domains in Do-
+feature. (b) shows the accuracies of models trained with real on                                                                                                         mainNet shown in Fig. 5 (a) and the class lists are shown
+                                                                                                                                                                         in the supplementary material. By extracting the intermedi-
+different domains. From the results, we can see that the gap between                                                                                                     ate Class Token and implementing dimensionality reduction
+                                                                                                                                                                         via T-SNE technique [28], we generate the visualizations of
+ViTs and CNNs is getting larger when the tested domain contains                                                                                                          Class Token data of layer 8 and layer 12 from four domains
+                                                                                                                                                                         and respectively show the comparison of real vs. painting,
+fewer visual cues (i.e. from real to quickdraw). Therefore, we can                                                                                                       real vs. sketch and real vs. quickdraw. As shown in Fig. 6,
+                                                                                                                                                                         we can first observe from pictures in the first row that data
+conclude that ViTs are less affected by the shift of color, texture,                                                                                                     from different domains are clustered together to a certain
+                                                                                                                                                                         extent only in the real vs. painting condition at layer 8. As
+and shape features, indicating that ViTs focus more on structures.                                                                                                       for real vs. sketch, the data become well clustered until at
+                                                                                                                                                                         layer 12 (Fig. 6 (e)), whereas the real vs. quickdraw con-
+         real          painting                                      real      sketch                        80         real      quickdraw                              dition fails to mix up data from different domains together
+60                                                          60                                                                                                           but there exists the decision boundary that can well divide
+                                                                                                             60                                                          data of different classes for both domains at layer 12 (Fig. 6
+                                                                                                                                                                         (f)). From the above analysis, we conclude that ViTs will
+40                                                          40                                               40                                                          eliminate different levels of DS in different layers.
+
+                                                                                                             20
+
+20                                                          20
+
+                                                                                                             0
+
+0                                                           0                                                20
+
+20                                                          20                                               40
+
+40                                                          40                                               60
+
+               40            20  0  20            40                40         20        0       20      40             40        20         0     20        40      60
+
+(a) rel vs. pnt, L8                                         (b) rel vs. skt, L8                              (c) rel vs. qcd, L8
+
+         real          painting                                      real      sketch                        60                                    real      quickdraw
+40                                                          40
+
+                                                                                                             40
+
+20                                                          20
+
+                                                                                                             20
+
+0                                                           0                                                0
+
+20                                                          20                                               20
+
+40                                                          40                                               40
+
+60                                                          60                                               60
+
+    60             40        20  0  20  40                      60         40        20  0       20  40             60        40      20        0        20      40
+
+   (d) rel vs. pnt, L12 (e) rel vs. skt, L12 (f) rel vs. qcd, L12
+
+Figure 6. T-SNE visualization results. (a)-(c) and (d)-(e) repec-
+tively illustrates the comparison of visualizing Class Token data of
+real vs. painting, real vs. sketch and real vs. quickdraw of layer 8
+and layer 12 from four domains. Please zoom for better view.
+
+                                                                                                                                                                         7283
+                                                                                                                                                                                                             
+
+                                                                                                                                                                                                             
+
+           9DO$FFXUDF\                                                                                                                                                                                       
+                                                                                                     9DO$FFXUDF\
+                                                                                                                                                                                                9DO$FFXUDF\  
+
+                                                      ZZZR$$$$$$aaddavvdv000   0.1                  ZZZR$$$$$$eee010   0.1                                                                                                       ZZZR$$$$$$IISSIS100   0.1
+                                                                              0.1                                     0.1                                                                                                                             0.1
+                                                                              1
+
+                                                                                                                                                                                                                                                      
+
+                                        7UDQLQJ6WHSV                                                                  7UDQLQJ6WHSV                                                                                 7UDQLQJ6WHSV
+
+                                  (a) T-ADV                                                           (b) T-MME                                                                                                    (c) T-SSL
+
+Figure 7. Investigation of Generalization-enhanced methods with different training strategies. (a)-(c) show training curves on both
+
+source domain and target domain. From the results, we can conclude that classical training strategies (the green lines) on CNNs are not
+
+suitable for ViTs, which need smoother strategies (the red lines) to align features in both domains.
+
+Table 2. Results of Generalization-enhanced methods. Specifi-                                                               enhanced transformer models, larger ViTs still benefit more
+cally, we compare three types of GE-ViTs with their corresponding                                                           for the out-of-distribution generalization.
+CNNs. From the results we could conclude that 1) equipped with                                                              Smooth Feature Alignment. Fig. 7 shows the performance
+GE-ViTs, we achieve significant performance boosts towards out-                                                             of GE-ViTs with different training strategies. The green line
+of-distribution data by 4% from vanilla ViTs. 2) three GE-ViTs                                                              represents the same training strategies used in CNNs. The
+have almost the same improvement from vanilla models on OOD                                                                 other two lines use smoother strategies. From the compari-
+accuracy. 3) for the enhanced transformer models, larger ViTs still                                                         son of these strategies, we observe that 1) the generally used
+benefit more for the out-of-distribution generalization.                                                                    automated augmentation schemes shall cause performance
+                                                                                                                            degradation on T-ADV while they have little influence on
+  Model      Method     R to C  R to P  P to C        C to S  S to P                R to S  P to R  Avg.                    T-MME and T-SSL. 2) smoother learning strategies are sig-
+DeiT-B/16                                                                                                                   nificant for ViT convergence, especially in the adversarial
+DeiT-S/16        -      54.64   48.40   40.37         45.69   36.75                 41.31   55.33   46.07                   training mode. As for T-MME and T-SSL, smoothness of
+             T-ADV      58.19   50.85   41.91         51.18   46.12                 47.47   55.65   50.20                   auxiliary losses also significantly improves the performance.
+    BiT      T-MME      60.59   51.98   42.30         50.32   45.79                 47.92   54.87   50.54                   Based on these observations, we conclude that GE-ViTs are
+ VGG-16       T-SSL     56.80   49.06   45.96         51.79   46.95                 45.95   60.98   51.07                   more sensitive to the hyper-parameters than their correspond-
+                                                                                                                            ing CNN models.
+                 -      50.60   45.82   36.09         43.39   35.24                 39.29   52.08   43.22
+             T-ADV      53.60   47.84   37.99         47.10   41.61                 41.94   52.82   46.13                   7. Discussion and Conclusion
+             T-MME      56.86   49.15   38.97         46.48   42.95                 42.07   52.49   47.00
+              T-SSL     53.86   46.71   42.79         47.25   43.01                 40.94   57.07   47.37                      We provide a comprehensive study on the OOD gener-
+                                                                                                                            alization of ViTs, with the following contributions: 1) We
+                 -      42.18   41.14   30.72         37.01   28.23                 32.64   48.54   36.78                   define a taxonomy on data distribution shifts according to
+           DANN [10]    45.20   42.86   32.96         40.44   36.63                 35.26   49.25   40.37                   the modified semantic concepts in images. 2) We perform a
+           MME [24]     50.21   44.61   34.75         40.27   38.41                 37.83   47.58   41.95                   comprehensive study on OOD generalization and inductive
+                        52.55   42.80   39.03         45.72   39.08                 39.65   56.07   44.98                   bias properties of ViTs under the five categorized distribu-
+            SSL [34]                                                                                                        tion shifts. Several valuable observations are obtained. 3)
+                        39.39   37.32   26.36         32.96   25.55                 27.79   45.70   33.58                   We further improve the OOD generalization of ViTs by de-
+                 -      43.26   40.09   28.68         36.22   31.63                 35.45   44.73   37.15                   signing GE-ViTs through adversarial learning, information
+           DANN [10]    42.65   42.46   27.41         36.93   33.94                 32.58   45.87   37.41                   theory, and self-supervised learning with smoother training
+           MME [24]     43.79   41.88   32.19         35.73   36.99                 31.05   55.18   39.54                   strategies. Our work serves as an early attempt, thus there is
+                                                                                                                            plenty of room for developing more powerful GE-ViTs.
+            SSL [34]                                                                                                        Broader Impacts. Some models utilized in this paper de-
+                                                                                                                            mand a large number of computing resources for training
+6. Studies on Generalization-Enhanced ViTs                                                                                  procedures. The consumption of electricity may exert an
+                                                                                                                            environmental impact.
+Settings. We use DomainNet [22] for the following exper-
+iments. Following [24], we focus on the 7 scenarios listed                                                                  Acknowledgements
+in Tab. 2. To make a full comparison, we implement these
+enhancing techniques on two representative CNNs VGG-16                                                                         This work is supported by NTU NAP, and under the
+and BiT, and two ViTs including DeiT-S/16 and DeiT-B/16.                                                                    RIE2020 Industry Alignment Fund ­ Industry Collabora-
+We explore their performance on both the vanilla version                                                                    tion Projects (IAF-ICP) Funding Initiative, as well as cash
+and the generalization-enhanced version. Implementation                                                                     and in-kind contribution from the industry partner(s).
+details can be found in supplementary materials.
+Performance Analysis. The results of three GE-ViTs com-
+paring with CNNs are shown in Tab. 2. From the results
+we have the following observations: 1) equipped with GE-
+ViTs, we achieve significant performance boosts towards
+out-of-distribution data by 4% from vanilla ViTs. 2) Three
+GE-ViTs have almost the same improvement from vanilla
+models on OOD accuracy. In contrast, CNNs benefit more
+from the self-supervised learning method than the others. 3)
+DeiT-B/16 has a larger gain on those enhancing methods
+than DeiT-S/16. Therefore, we conclude that 1) ViTs and
+CNNs share many characteristics, and both can be beneficial
+from the generalization-enhancement methods. 2) For the
+
+                                                                                                                            7284
+References                                                                analysis of out-of-distribution generalization. In International
+                                                                          Conference on Computer Vision, pages 8320­8329, 2021. 1,
+ [1] Yutong Bai, Jieru Mei, Alan Yuille, and Cihang Xie. Are              2, 3, 6
+      transformers more robust than cnns? arXiv preprint
+      arXiv:2111.05464, 2021. 1, 2                                  [14] Dan Hendrycks and Thomas Dietterich. Benchmarking neural
+                                                                          network robustness to common corruptions and perturbations.
+ [2] Andrei Barbu, David Mayo, Julian Alverio, William Luo,               In International Conference on Learning Representations,
+      Christopher Wang, Dan Gutfreund, Josh Tenenbaum, and                2019. 1, 2
+      Boris Katz. Objectnet: A large-scale bias-controlled dataset
+      for pushing the limits of object recognition models. Ad-      [15] Alexander Kolesnikov, Lucas Beyer, Xiaohua Zhai, Joan
+      vances in neural information processing systems, 32:9453­           Puigcerver, Jessica Yung, Sylvain Gelly, and Neil Houlsby.
+      9463, 2019. 2                                                       Big transfer (bit): General visual representation learning.
+                                                                          In Andrea Vedaldi, Horst Bischof, Thomas Brox, and Jan-
+ [3] Jonathan Baxter. A model of inductive bias learning. Journal         Michael Frahm, editors, Computer Vision - ECCV 2020 - 16th
+      of artificial intelligence research, 12:149­198, 2000. 1            European Conference, Glasgow, UK, August 23-28, 2020,
+                                                                          Proceedings, Part V, volume 12350 of Lecture Notes in Com-
+ [4] Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas           puter Science, pages 491­507. Springer, 2020. 3
+      Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-to-
+      end object detection with transformers. In Computer Vision    [16] Yann LeCun, Yoshua Bengio, et al. Convolutional networks
+      - ECCV 2020 - 16th European Conference, Glasgow, UK,                for images, speech, and time series. The handbook of brain
+      August 23-28, 2020, Proceedings, Part I, volume 12346 of            theory and neural networks, 3361(10):1995, 1995. 2
+      Lecture Notes in Computer Science, pages 213­229. Springer,
+      2020. 1, 2                                                    [17] Haoliang Li, Sinno Jialin Pan, Shiqi Wang, and Alex C Kot.
+                                                                          Domain generalization with adversarial feature learning. In
+ [5] Mathilde Caron, Hugo Touvron, Ishan Misra, Herve´ Je´gou,            Proceedings of the IEEE Conference on Computer Vision and
+      Julien Mairal, Piotr Bojanowski, and Armand Joulin. Emerg-          Pattern Recognition, pages 5400­5409, 2018. 2
+      ing properties in self-supervised vision transformers. arXiv
+      preprint arXiv:2104.14294, 2021. 1, 2                         [18] Junnan Li, Pan Zhou, Caiming Xiong, Richard Socher, and
+                                                                          Steven CH Hoi. Prototypical contrastive learning of unsu-
+ [6] Hanting Chen, Yunhe Wang, Tianyu Guo, Chang Xu, Yiping               pervised representations. arXiv preprint arXiv:2005.04966,
+      Deng, Zhenhua Liu, Siwei Ma, Chunjing Xu, Chao Xu, and              2020. 4
+      Wen Gao. Pre-trained image processing transformer. arXiv
+      preprint arXiv:2012.00364, 2020. 1, 2                         [19] Mingsheng Long, Yue Cao, Jianmin Wang, and Michael Jor-
+                                                                          dan. Learning transferable features with deep adaptation
+ [7] Mark Chen, Alec Radford, Rewon Child, Jeffrey Wu, Heewoo             networks. In International conference on machine learning,
+      Jun, David Luan, and Ilya Sutskever. Generative pretraining         pages 97­105. PMLR, 2015. 2
+      from pixels. In International Conference on Machine Learn-
+      ing, pages 1691­1703. PMLR, 2020. 1, 2                        [20] Muzammal Naseer, Kanchana Ranasinghe, Salman Khan,
+                                                                          Munawar Hayat, Fahad Shahbaz Khan, and Ming-Hsuan
+ [8] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov,               Yang. Intriguing properties of vision transformers. arXiv
+      Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner,                 preprint arXiv:2105.10497, 2021. 1, 2
+      Mostafa Dehghani, Matthias Minderer, Georg Heigold, Syl-
+      vain Gelly, et al. An image is worth 16x16 words: Trans-      [21] Sayak Paul and Pin-Yu Chen. Vision transformers are robust
+      formers for image recognition at scale. arXiv preprint              learners. arXiv preprint arXiv:2105.07581, 2021. 1, 2
+      arXiv:2010.11929, 2020. 1, 2
+                                                                    [22] Xingchao Peng, Qinxun Bai, Xide Xia, Zijun Huang, Kate
+ [9] Qi Dou, Daniel C Castro, Konstantinos Kamnitsas, and Ben             Saenko, and Bo Wang. Moment matching for multi-source
+      Glocker. Domain generalization via model-agnostic learning          domain adaptation. In Proceedings of the IEEE/CVF Inter-
+      of semantic features. arXiv preprint arXiv:1910.13580, 2019.        national Conference on Computer Vision, pages 1406­1415,
+      2                                                                   2019. 3, 8
+
+[10] Yaroslav Ganin and Victor Lempitsky. Unsupervised domain       [23] Amir Rosenfeld, Richard Zemel, and John K Tsotsos. The
+      adaptation by backpropagation. In International conference          elephant in the room. arXiv preprint arXiv:1808.03305, 2018.
+      on machine learning, pages 1180­1189. PMLR, 2015. 2, 3, 8           2
+
+[11] Robert Geirhos, Patricia Rubisch, Claudio Michaelis,           [24] Kuniaki Saito, Donghyun Kim, Stan Sclaroff, Trevor Darrell,
+      Matthias Bethge, Felix A. Wichmann, and Wieland Bren-               and Kate Saenko. Semi-supervised domain adaptation via
+      del. Imagenet-trained CNNs are biased towards texture; in-          minimax entropy. In Proceedings of the IEEE/CVF Inter-
+      creasing shape bias improves accuracy and robustness. In            national Conference on Computer Vision, pages 8050­8058,
+      International Conference on Learning Representations, 2019.         2019. 2, 3, 8
+      1, 2, 3
+                                                                    [25] Ramprasaath R Selvaraju, Michael Cogswell, Abhishek Das,
+[12] Anirudh Goyal and Yoshua Bengio. Inductive biases for                Ramakrishna Vedantam, Devi Parikh, and Dhruv Batra. Grad-
+      deep learning of higher-level cognition. arXiv preprint             cam: Visual explanations from deep networks via gradient-
+      arXiv:2011.15091, 2020. 1                                           based localization. In Proceedings of the IEEE international
+                                                                          conference on computer vision, pages 618­626, 2017. 7
+[13] Dan Hendrycks, Steven Basart, Norman Mu, Saurav Kada-
+      vath, Frank Wang, Evan Dorundo, Rahul Desai, Tyler Zhu,       [26] Yu Sun, Eric Tzeng, Trevor Darrell, and Alexei A Efros.
+      Samyak Parajuli, Mike Guo, Dawn Song, Jacob Steinhardt,             Unsupervised domain adaptation through self-supervision.
+      and Justin Gilmer. The many faces of robustness: A critical         arXiv preprint arXiv:1909.11825, 2019. 2
+
+                                                                    7285
+[27] Hugo Touvron, Matthieu Cord, Matthijs Douze, Francisco
+      Massa, Alexandre Sablayrolles, and Herve´ Je´gou. Training
+      data-efficient image transformers & distillation through atten-
+      tion. arXiv preprint arXiv:2012.12877, 2020. 1, 2, 3
+
+[28] Laurens Van der Maaten and Geoffrey Hinton. Visualizing
+      data using t-sne. Journal of machine learning research, 9(11),
+      2008. 7
+
+[29] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkor-
+      eit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia
+      Polosukhin. Attention is all you need. In Isabelle Guyon,
+      Ulrike von Luxburg, Samy Bengio, Hanna M. Wallach, Rob
+      Fergus, S. V. N. Vishwanathan, and Roman Garnett, editors,
+      Advances in Neural Information Processing Systems 30: An-
+      nual Conference on Neural Information Processing Systems
+      2017, December 4-9, 2017, Long Beach, CA, USA, pages
+      5998­6008, 2017. 2
+
+[30] Riccardo Volpi, Hongseok Namkoong, Ozan Sener, John
+      Duchi, Vittorio Murino, and Silvio Savarese. Generalizing
+      to unseen domains via adversarial data augmentation. In
+      Proceedings of the 32nd International Conference on Neural
+      Information Processing Systems, pages 5339­5349, 2018. 2
+
+[31] Yuqing Wang, Zhaoliang Xu, Xinlong Wang, Chunhua Shen,
+      Baoshan Cheng, Hao Shen, and Huaxia Xia. End-to-end
+      video instance segmentation with transformers. arXiv preprint
+      arXiv:2011.14503, 2020. 2
+
+[32] David H Wolpert, William G Macready, et al. No free lunch
+      theorems for search. Technical report, Technical Report SFI-
+      TR-95-02-010, Santa Fe Institute, 1995. 1
+
+[33] Kai Yuanqing Xiao, Logan Engstrom, Andrew Ilyas, and
+      Aleksander Madry. Noise or signal: The role of image back-
+      grounds in object recognition. In International Conference
+      on Learning Representations, 2021. 2
+
+[34] Xiangyu Yue, Zangwei Zheng, Shanghang Zhang, Yang Gao,
+      Trevor Darrell, Kurt Keutzer, and Alberto Sangiovanni Vin-
+      centelli. Prototypical cross-domain self-supervised learning
+      for few-shot unsupervised domain adaptation. arXiv preprint
+      arXiv:2103.16765, 2021. 2, 3, 4, 8
+
+[35] Matthew D Zeiler and Rob Fergus. Visualizing and under-
+      standing convolutional networks. In European conference on
+      computer vision, pages 818­833. Springer, 2014. 1
+
+[36] Xizhou Zhu, Weijie Su, Lewei Lu, Bin Li, Xiaogang Wang,
+      and Jifeng Dai. Deformable {detr}: Deformable transformers
+      for end-to-end object detection. In International Conference
+      on Learning Representations, 2021. 1, 2
+
+                                                                                   7286
+

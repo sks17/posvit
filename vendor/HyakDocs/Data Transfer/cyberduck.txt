@@ -1,0 +1,141 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Start Here
+Ego4d & Ego-Exo4D
+Epic Kitchens
+FineWeb-Edu
+ImageNet
+Kinetics
+Olmo-mix-1124
+TabLib
+TCGA
+The Pile
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Data TransferCyberduck
+Cyberduck
+Cyberduck is an open-source client for managing and transferring files to various cloud storage services and protocols, including FTP, SFTP, and S3. It offers a simple, intuitive interface that allows users to easily upload, download, and organize their files. Cyberduck is available for both Windows and macOS, making it a versatile tool for seamless file management across different platforms.
+
+To use Cyberduck, you will need to download it on your local computer. Download Cyberduck Here. Once it has downloaded, open Cyberduck in a file explorer and open a connection.
+Open Connection
+A window with a drop down menu should appear. Select the SFTP (SSH File Transfer Protocol) option.
+Configuration Select SFTP
+Type in klone.hyak.uw.edu as the server name and your UW NetID and password. You can now click the "Connect" button on the bottom right side of the window.
+Input Credentials
+After pressing "Connect", you should get a DUO two-factor authorization prompt.
+DUO 2fa
+
+After completing the two-factor authorization, you should be able to see all of your files located in your home directory on Hyak. You can navigate between directories using this visual interface. With Cyberduck, you can "drag and drop" files from your local computer to Klone. Each file transferred requires 2 Factor Authentication with Duo, so we recommend moving all the files you wish to transfer first to a directory on your local computer and transfer them all with one Duo step. For large files, compression may be helpful.
+Home Directory
+The next time you wish to access Cyberduck, a bookmark will have automatically been created, allowing for quick access by clicking on the clock icon on the upper left side of the screen.
+Bookmark
+Previous
+scp & rsync
+Next
+Globus
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

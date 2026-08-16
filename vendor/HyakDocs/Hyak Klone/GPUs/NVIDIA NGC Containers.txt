@@ -1,0 +1,226 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+System Architecture
+Get Started
+Join a Group
+Account Creation
+Two-Factor Authentication
+Setup
+SSH & Login Node Usage
+Intracluster SSH Keys
+SSH Port Forwarding
+X11 Forwarding
+Storage
+Start Here
+Storage on Klone
+Compute
+Start Here
+Scheduling Jobs
+Using Idle Resources
+Resource Monitoring
+GPUs
+Start Here
+NVIDIA NGC Containers
+Using Ollama on Hyak
+Tillicum
+System Architecture
+Get Started
+Slurm
+Monitoring Usage
+Software Environment
+Storage
+Open OnDemand
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Start Here
+Ego4d & Ego-Exo4D
+Epic Kitchens
+FineWeb-Edu
+ImageNet
+Kinetics
+Olmo-mix-1124
+TabLib
+TCGA
+The Pile
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Hyak KloneGPUsNVIDIA NGC Containers
+NVIDIA NGC Containers
+In the Containers section, you learned the multiple ways in which containers can be used. In this section we will cover NGC (NVIDIA GPU Cloud) containers that are performance-optimized, tested, and ready to deploy on GPU.
+
+Researchers can leverage GPU acceleration to train large-scale language models, enabling more efficient processing of textual datasets and advancing tasks like text generation and sentiment analysis. GPUs play a pivotal role in accelerating training and inference tasks for deep learning models, from computer vision to speech recognition, empowering researchers to tackle complex problems with unprecedented speed and scalability. GPUs accelerate compute-intensive tasks like molecular dynamics simulations or climate modeling. GPU code acceleration offers unparalleled performance and scalability for researchers across disciplines.
+
+We encourage you to check out what containers are available within NGC, as in this page we will only cover a couple that get you started with using the GPU.
+
+Relevant Vocabulary
+Apptainer: Apptainer is a container program that facilitates the ability to create and run portable and reproducible containers, especially in an HPC environment like Hyak's current generation cluster, klone.
+
+Apptainer Definition File: a recipe file for an Apptainer container which contains install instructions for software to be containerized. The file extension for an Apptainer definition file is .def.
+
+NVIDIA GPU Cloud: A container registry that specializes in common GPU accelerated applications or GPU software development tools provided by NVIDIA. The NVIDIA NGC catalog has a wide variety of containers for machine learning and AI applications.
+
+Example container workloads
+Below we will walk through examples of how to use two of the many containers available in NGC. We will cover using the HPC (Software Develpment Kit) SDK in a couple different forms. Other examples of containers you could explore on your own include:
+
+NVIDIA RAPIDS: RAPIDS is a platform for end-to-end data science and analytics pipelines entirely on GPUs. RAPIDS contains GPU accelerated versions of popular Python libraries like cuDF for Pandas and cuML for scikit-learn.
+
+NVIDIA Holoscan: Holoscan is a platform for AI sensor processing focusing on low-latency sensor and network connectivity, optimized libraries for data processing and AI, and core microservices to run streaming, imaging, and other applications.
+
+Open Hackathons GPU Bootcamp: Another great place to get started with tools that are in the HPC SDK and in the broader GPU software stack is through the GPU Bootcamp. This page details how to get started with Apptainer containers for HPC and AI. It has examples in Python, C++, using OpenACC directives, and also a miniprofiler.
+
+Getting Started with Containers
+If you are new to containers, it may be useful to refer to the following resources to help get you started:
+
+What is a Container?
+
+Getting Started With Apptainer
+
+Containers Tutorial
+
+Pre-requisites
+Please refer to the Apptainer and Docker for information on getting started with Apptainer and getting access to NGC.
+
+Get a summary of all the GPUs on the cluster and their current state. This will be helpful when requesting an interactive session on a GPU for the exercises below.
+
+sinfo -p ckpt -O nodehost,cpusstate,freemem,gres,gresused -S nodehost | grep -v null
+
+NVIDIA HPC SDK
+The HPC SDK houses compilers, libraries, and software tools that are most commonly used when working on HPC applications. Below we will demonstrate how to get started with this container. We will show how standard parallelization is achieved with a mini app LULESH for hydrodynamics.
+
+Get an interactive session on a GPU instance using some variant of the below command.
+salloc -A mygroup -p ckpt --gpus-per-node=a40:1 --mem=10G --time=1:00:00 --job-name=LULESH_testing
+
+Run container, with LULESH code available. To do so we must first clone the LULESH repo, and then mount it in our container.
+git clone --branch 2.0.2-dev https://github.com/LLNL/LULESH.git
+
+apptainer shell --nv -B LULESH:/source --pwd /source docker://nvcr.io/nvidia/nvhpc:23.1-devel-cuda12.0-ubuntu20.04
+
+cd stdpar/build
+make run
+
+
+You can try out the other features included in the HPC SDK. This includes our profiling tools like Nsight systems and the NVCC compiler for CUDA codes. The HPC SDK should be your one stop shop for getting started with GPU accelerating your workloads.
+
+Gromacs
+Get an interactive session on a GPU instance using some variant of the below command.
+salloc -A mygroup -p ckpt --gpus-per-node=a40:1 --mem=10G --time=1:00:00 --job-name=gromacs_testing
+
+Get the example data, or use your own if you already are using GROMACS
+DATA_SET=water_GMX50_bare
+wget -c https://ftp.gromacs.org/pub/benchmarks/${DATA_SET}.tar.gz
+tar xf ${DATA_SET}.tar.gz
+cd ./water-cut1.0_GMX50_bare/1536
+
+Run container, with data available
+apptainer run --nv -B ${PWD}:/host_pwd --pwd /host_pwd docker://nvcr.io/hpc/gromacs:2022.3 gmx grompp -f pme.mdp
+
+
+Previous
+Start Here
+Next
+Using Ollama on Hyak
+Example container workloads
+Pre-requisites
+NVIDIA HPC SDK
+Gromacs
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle

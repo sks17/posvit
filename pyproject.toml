@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "posvit"
+version = "0.1.0"
+description = "Positional encoding and background-shortcut reliance in Vision Transformers"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+
+# Derived from the imports the package actually makes, not copied from an environment
+# setup script. env/requirements.lock is compiled from this list and pins the exact
+# versions that produced the committed results.
+dependencies = [
+  "torch",            # models, tensors
+  "torchvision",      # transforms, ImageFolder base
+  "numpy",
+  "scipy",            # ndimage (mask morphology), rank statistics
+  "pillow",           # imported as PIL
+  "pyyaml",           # imported as yaml
+  "pandas",           # GEE design matrix (stats)
+  "statsmodels",      # McNemar, GEE dose-response
+  "timm==0.9.12",     # PINNED: load-bearing for the vendored model constructors
+  "huggingface_hub",  # checkpoint download
+  # einops is imported by no file in this package, but the vendored models.vit_rope
+  # constructors require it at runtime. Do not remove.
+  "einops",
+  "matplotlib",       # figures
+]
+
+[project.optional-dependencies]
+dev = ["pip-tools", "pytest"]
+
+[project.scripts]
+posvit = "posvit.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["posvit*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# The default run needs no dataset, no network and no GPU, which is what makes it
+# runnable in CI on every push.
+addopts = "-m 'not smoke and not gpu' --strict-markers -q"
+markers = [
+  "smoke: needs the IN-9 dataset (CPU, minutes)",
+  "gpu: needs a GPU and downloaded checkpoints",
+]

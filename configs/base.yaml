@@ -1,0 +1,70 @@
+seed: 0
+img_size: 224
+batch_size: 64
+num_workers: 4
+# ImageNet mean values
+norm_mean: [0.485, 0.456, 0.406]
+# ImageNet standard deviation values
+norm_std:  [0.229, 0.224, 0.225]
+# Whether or not to resize the images in BG_Challenge and Waterbirds. If set to "none," the images will not be resized
+resize_policy: none
+# bootstrap values for statistical significance of CI. Default at 10,000. If set to 0, bootstrapping will be disabled
+bootstrap_n: 10000
+bootstrap_seed: 0
+# 1 - confidence_interval. Default at 95%
+ci_alpha: 0.05
+
+# Interpretability guard. BG-Gap is read only where ORIGINAL accuracy is at least this
+# value; below it the model approaches chance and the gap stops measuring reliance
+acc_floor: 0.80
+
+# Equivalence testing. tost_margin is THE pre-declared margin, i.e. the definition of
+# "equivalent" for this project. The sensitivity list is a robustness check, not the test
+tost_margin: 0.020
+tost_margins_sensitivity: [0.010, 0.015, 0.020]
+power_alpha: 0.05
+power_target: 0.80
+
+# Stratification. Bin count and within-class ranking both change the reported trend, so
+# the headline values are declared here and swept over the sensitivity list
+strat_n_bins: 4
+strat_within_class: false
+# Bins holding fewer than this many foregrounds are flagged as under-powered, never dropped
+strat_min_bin_n: 100
+strat_bins_sensitivity: [3, 4, 5, 10]
+# Multiplicity correction for the nine per-class tests: "bonferroni" (FWER) or "bh" (FDR)
+per_class_correction: bonferroni
+
+# Waterbirds. The floor differs from acc_floor because the chance rate differs: IN-9 is
+# nine-class (chance 0.11) while Waterbirds is two-class (chance 0.50), and below ~0.70 a
+# two-class gap compresses toward zero
+wb_acc_floor: 0.70
+# Linear heads are ensembled over this many seeds to cut initialization variance
+wb_head_seeds: 5
+# Positive control: the ERM head must exhibit at least this spurious gap before the sweep
+# runs, otherwise a null result would be uninformative rather than evidence of absence
+wb_min_baseline_gap: 0.02
+
+# Mechanism probes
+probe_steps: 300
+probe_lr: 0.05
+probe_weight_decay: 0.001
+# Fraction of foreground identities held out. The split is on identities, not rows, so the
+# same object never appears in both halves
+probe_test_frac: 0.5
+probe_seeds: 3
+auc_boot_n: 2000
+# Negative class for the per-image reliance AUC: "all" scores d=+1 against everything else,
+# "discordant" scores d=+1 against d=-1 only. The two are not comparable, so it is recorded
+reliance_negative_class: all
+# High-norm artifact cutoff = median + artifact_k * 1.4826 * MAD
+artifact_k: 3.0
+# A probe SUPPORTS its hypothesis only if its AUC confidence interval clears this margin
+# above chance; a bare 0.5 would count an effect too small to matter
+probe_auc_support: 0.55
+# Matched-accuracy excess (percentage points) required for a control comparison to support
+probe_excess_support_pp: 1.0
+# Fraction of |freq| components in the targeted rotary band
+rope_band_frac: 0.25
+# Spatial-frequency rings retained by the APE low-pass robustness check
+ape_lowpass_rings: [1, 2, 3, 5, 7]

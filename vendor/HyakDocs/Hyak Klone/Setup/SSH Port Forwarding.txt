@@ -1,0 +1,154 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+System Architecture
+Get Started
+Join a Group
+Account Creation
+Two-Factor Authentication
+Setup
+SSH & Login Node Usage
+Intracluster SSH Keys
+SSH Port Forwarding
+X11 Forwarding
+Storage
+Start Here
+Storage on Klone
+Compute
+Start Here
+Scheduling Jobs
+Using Idle Resources
+Resource Monitoring
+GPUs
+Start Here
+NVIDIA NGC Containers
+Using Ollama on Hyak
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Hyak KloneSetupSSH Port Forwarding
+SSH Port Forwarding
+Configuring SSH Single-Port Forwarding
+Single port forwarding allows you make a port on your machine behave as though it aimed at another machine on the same port. This allows you to forward a hosted port for a service like RStudio or Jupyter-Notebook on a node inside the klone network onto your local machine for access via browser. If properly configured, you should be able to access (per the example below) an HTTP service running on http://z3003.hyak.local:9591 by opening a browser and navigating to http://localhost:9591
+
+Before beginning this work, you will need to know the node the web service is being run on and port that it can accessed at. The port number should be provided to you when you start the service and the node's hostname is available by typing hostname on the terminal after starting an interactive session.
+
+Putty (Windows)
+After adding klone.hyak.uw.edu to the Hostname section on the Putty Connection page, navigate to Connection > SSH > Tunnels. Set source port to the port mentioned at job start (in my case, 9195) and the destination to the node and the port, separated by a colon (e.g. z3003.hyak.local:9195). Leave the destination options for Local and Auto set.
+
+OpenSSH Client (Linux/Mac/ConEmu)
+In your SSH Connection string, include the -L flag followed by PORT:HOSTNAME:PORT where the hostname is the one for the node running the service in the klone network and the port is the one provided at service start.
+
+ssh klone.hyak.uw.edu -L 8555:z3003.hyak.local:8555
+
+Previous
+Intracluster SSH Keys
+Next
+X11 Forwarding
+Configuring SSH Single-Port Forwarding
+Putty (Windows)
+OpenSSH Client (Linux/Mac/ConEmu)
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

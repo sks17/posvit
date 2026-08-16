@@ -1,0 +1,203 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Start Here
+Ego4d & Ego-Exo4D
+Epic Kitchens
+FineWeb-Edu
+ImageNet
+Kinetics
+Olmo-mix-1124
+TabLib
+TCGA
+The Pile
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Data CommonsTCGA
+TCGA Dataset
+warning
+This dataset will be available on Tillicum soon!
+
+Sponsoring groups are Su-In Lee, Linda Shapiro, Sheng Wang. Student users are Chanwoo Kim, Rustin Soraki, and Zucks Liu. Initial deployment of Sep 2025.
+
+What is this?
+The Cancer Genome Atlas (TCGA) is a landmark cancer genomics program that molecularly characterized over 20,000 primary cancer samples across 33 cancer types. TCGA, established in 2016 as a collaboration between the National Cancer Institute (NCI) and the National Human Genome Research Institute (NHGRI), provides a vast dataset for cancer research. The dataset encompasses a wide range of data types. It includes tissue whole slide image and multiple genomic data types, such as whole-exome sequencing, gene expression, copy number variations, and methylation data.
+
+You can learn more at their official website here or from their primary publication here.
+
+Available Data in the Data Commons
+Diagnostic whole slide image (11TB)
+The entire TCGA data is extremely large, totaling approximately 2.5 petabytes. Currently, only a subset—diagnostic whole slide images (~11TB)—used by the initial contributors has been deposited in the data commons.
+
+How to prepare for use?
+These instructions are intended to support future reproducibility and assist those who may wish to download data types beyond what is currently available in hyak data commons.
+
+TCGA organizes different cancer types as separate projects. We store data for each project as a separate folder under the main /gpfs/datasets/tgca directory on Tillicum.
+
+Below is an example of how to set up TCGA-LUSC (Lung squamous cell carcinoma) project.
+
+Step 1. Download project metadata
+Go to GDC portal
+Select the project. Click on TCGA-LUSC
+Click biospecimen–tsv and clinical–tsv to download the compressed files: clinical.project-tcga-lusc.*.tar.gz and biospecimen.project-tcga-lusc.*.tar.gz
+Clinical data: Includes patient metadata clinical data (e.g., clinical.tsv, exposure.tsv, family_history.tsv, follow_up.tsv, pathology_detail.tsv)
+Biospecimen Data: Contains details on available biospecimen sample (e.g., aliquot.tsv, analyte.tsv, portion.tsv, sample.tsv, slide.tsv)
+Extract and store them under /gpfs/datasets/tcga/TCGA_LUSC/clinical and /gpfs/datasets/tcga/TCGA_LUSC/biospecimen respectively.
+Finally, download the manifest file, which is a table linking each filename to its corresponding file ID. The file ID can be used to download the file via an FTP client using the URL: https://api.gdc.cancer.gov/data/{file_id}
+Click manifest to download gdc_manifest.*.txt. Store it in /gpfs/datasets/tcga/TCGA_LUSC/gdc_manifest.txt
+Step 2. Download specific biospecimen data you are interested in.
+Below is an example of filtering and retrieving diagnostic whole slide images:
+
+Get a list of URLs for biospecimen data files to download.
+import pandas as pd
+
+slide_df = pd.read_csv("/gpfs/datasets/tcga/TCGA_LUSC/biospecimen/slide.tsv", sep="\t")
+slide_df_diagnostic = slide_df[
+    slide_df["slide_submitter_id"]
+    .map(lambda x: x.split("-")[-1][:2])
+    .map(lambda x: {"DX": True, "BS": False, "TS": False, "MS": False}[x])
+]
+
+manifest_df = pd.read_csv("/gpfs/datasets/tcga/TCGA_LUSC/gdc_manifest.txt", sep="\t")
+manifest_df["slide_submitter_id"] = manifest_df["filename"].map(
+    lambda x: x.split(".")[0]
+)
+
+data_df = slide_df_diagnostic.merge(
+    right=manifest_df,
+    left_on="slide_submitter_id",
+    right_on="slide_submitter_id",
+    how="inner",
+)
+
+url_list = data_df["id"].map(lambda x: f"https://api.gdc.cancer.gov/data/{x}").tolist()
+md5_list = data_df["md5"]
+
+Download the files iteratively and save them to /gpfs/datasets/tcga/TCGA_LUSC/gdc_manifest. After downloading, we recommend verifying the MD5 checksum to ensure data integrity.
+How to access?
+The data path for TCGA data on tillicum is /gpfs/datasets/tcga.
+
+Data from TCGA projects are organized into two tiers: Open Access and Controlled Access. We only deposit open access data in the Hyak Data Commons.
+
+Open Access data tier contains data that cannot be attributed to an individual research participant. The Open Access data tier does not require user certification. Data in Open Access tier are available in the Genomic Data Commons Data Portal and it can be downloaded via public FTP.
+Controlled Access data tier contains individual-level genotype data that are unique to an individual. Access to data in the Controlled Access data tier requires user certification through dbGaP Authorized Access.
+More information is available here.
+
+How to cite?
+Please refer to the TCGA citation guidelines here.
+
+Previous
+TabLib
+Next
+The Pile
+What is this?
+How to prepare for use?
+Step 1. Download project metadata
+Step 2. Download specific biospecimen data you are interested in.
+How to access?
+How to cite?
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

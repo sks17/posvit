@@ -1,0 +1,133 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Tools & SoftwareVs CodeUsing VS Code on Hyak
+Using VS Code on Hyak
+Visual Studio Code (VS Code) is a versatile and lightweight source-code editor developed by Microsoft, known for its robustness, extensive customization options, and integration with various programming languages and tools. Connecting VS Code to Hyak's HPC environment enables seamless development and debugging of complex scientific or computational applications, leveraging version control integration and efficient code editing.
+
+Be a good HPC-citizen - do not connect to a login node
+While developing your code with connectivity Hyak is a great usage of our services, connecting directly to the login node via the Remote-SSH extension will result in VS Code server processes running silently in the background and leading to node instability. As a reminder, we prohibit users running processes on the login node.
+
+Here we provide three solutions to connect VS Code to Hyak that will will help limit the possibility that your work would cause system instability on the login node:
+
+(Simplest) VS Code on Open OnDemand via Code-server: Open OnDemand (OOD) is a web-based portal that provides an integrated, single access point for access to the Klone HPC Cluster. VS Code on OOD is provided through code-server.
+VS Code via Code-server: a Docker container which uses a server to develop and execute your code reducing battery usage. code-server handles the VS Code background processes, preventing them from slowing down your local machine.
+VS Code via ProxyJump: uses ProxyJump and the Remote-SSH VS Code extension to connect to a compute node. This option requires more from your local machine, more set up, and more authentication steps for Windows users.
+Additional Considerations
+VS Code’s high usage is due to it silently installing its built in features into the user's home directory ~/.vscode on klone enabling intelligent autocomplete features. This is a well known issue, and there is a solution that involves disabling the @builtin TypeScript plugin from the VS Code on your local machine. Here is a link to a blog post about the issue and the super-easy solution. Disabling @builtin TypeScript will reduce your usage of the shared resources and avoid problems. Disabling @builtin TypeScript is also recommended for our solution to connect VS Code via ProxyJump.
+
+Silent processes from VS Code will continue to run on klone even after you have logged off. Check which processes are running on the login node, especially if you have been receiving usage violations when you are not aware of jobs running. Look for vscode-server among the listed processes with the following command, replacing UWNetID with your UW Net ID.
+
+ps aux | grep <UWNetID>
+
+Previous
+Mathematica
+Next
+VS Code via Code-Server
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

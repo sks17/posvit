@@ -1,0 +1,180 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Start Here
+Ego4d & Ego-Exo4D
+Epic Kitchens
+FineWeb-Edu
+ImageNet
+Kinetics
+Olmo-mix-1124
+TabLib
+TCGA
+The Pile
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Data CommonsEpic Kitchens
+Epic Kitchens Dataset
+tip
+This dataset is available on Hyak Klone and Tillicum.
+
+Sponsoring groups are Rajesh Rao, Abhishek Gupta, Ali Farhadi. Student users are Vishwas Sathish, Chuning Zhu, and Aditya Kusupati. Initial deployment of April 2024.
+
+What is this?
+Epic kitchens is a large-scale dataset in first-person (egocentric) vision; multi-faceted, audio-visual, non-scripted recordings in native environments - i.e. the wearers' homes, capturing all daily activities in the kitchen over multiple days. Annotations are collected using a 'Pause-and-Talk' narration interface. You can learn more at their website here or from their paper here.
+
+How to prepare for use?
+Install decord on your python environment to read the video files. You can also use other libraries to read video frames. Popular ones include OpenCV, and skvideo.
+
+from decord import VideoReader, cpu
+
+# load a single file of the dataset
+video_clip_path = "/<path>/<to>/<video_folder>/LABLE/IDX-start_time-end_time.mp4"
+vr = VideoReader(file_path, num_threads=-1, ctx=cpu(0))
+
+
+How to access?
+The epic kitchens dataset and benchmarks on this page are copyright by us and published under the Creative Commons Attribution-NonCommercial 4.0 International License.
+
+The file path for epic kitchens dataset on klone is /data/epic_kitchens.
+
+The file path for epic kitchens dataset on tillicum is /gpfs/datasets/epic_kitchens.
+
+How to cite?
+If you use the Epic Kitchens dataset or any of the components, please cite the following papers:
+
+@ARTICLE{Damen2022RESCALING,
+           title={Rescaling Egocentric Vision: Collection, Pipeline and Challenges for EPIC-KITCHENS-100},
+           author={Damen, Dima and Doughty, Hazel and Farinella, Giovanni Maria and Furnari, Antonino 
+           and Ma, Jian and Kazakos, Evangelos and Moltisanti, Davide and Munro, Jonathan 
+           and Perrett, Toby and Price, Will and Wray, Michael},
+           journal   = {International Journal of Computer Vision (IJCV)},
+           year      = {2022},
+           volume = {130},
+           pages = {33–55},
+           Url       = {https://doi.org/10.1007/s11263-021-01531-2}
+} 
+
+
+@INPROCEEDINGS{Damen2018EPICKITCHENS,
+title={Scaling Egocentric Vision: The EPIC-KITCHENS Dataset},
+author={Damen, Dima and Doughty, Hazel and Farinella, Giovanni Maria  and Fidler, Sanja and 
+        Furnari, Antonino and Kazakos, Evangelos and Moltisanti, Davide and Munro, Jonathan 
+        and Perrett, Toby and Price, Will and Wray, Michael},
+booktitle={European Conference on Computer Vision (ECCV)},
+year={2018}
+} 
+
+Previous
+Ego4d & Ego-Exo4D
+Next
+FineWeb-Edu
+What is this?
+How to prepare for use?
+How to access?
+How to cite?
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

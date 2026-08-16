@@ -1,0 +1,147 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+TutorialsContainersSyllabus
+Syllabus
+Goals & Rationale
+The main objective of this tutorial is to demystify containers and containerization of software for usage on Hyak
+Containers are lightweight, isolated software environments that encapsulate an application, along with its dependencies and runtime settings. Containers are useful because they provide a consistent and reproducible way to package, distribute, and run software across different computing environments.
+
+Most importantly, software containers allow Hyak researchers to install their software package and all its dependencies without root administrative privileges. Click here to see the Hyak's Software Usage Policies for more information.
+
+Video available
+
+Much of the Hyak documentation is organized into bite sized instructional guides for particular software tools or concepts, but these may be too advanced for users who are brand new to High Performance Computing (HPC) and haven't used containers before. Here we have prepared a walk-through tutorial to demonstrate fundamental commands to build and use software containers. In this tutorial, we will explain what containers are and how and why they should be used in the Hyak research computing environment. We will provide exercises to give you practice using containers and building custom containers for your research.
+
+Learning Objectives:
+Become familiar with Hyak software policies.
+Be able to define what a container is.
+Become familiar with the benefits of containers for reproducible science.
+Become proficient in container usage.
+Practice building custom containers.
+Send a command to a container via a Slurm batch script.
+Tutorial Content
+Use the sidebar to navigate or click the links below to jump to different sections of the tutorial.
+
+Tutorial: Containers
+This page - Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Extra Practice
+We have curated a list of Additional Resources and many are relevant for this tutorial.
+
+Previous
+Syllabus
+Next
+Introduction
+Goals & Rationale
+Tutorial Content
+Extra Practice
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

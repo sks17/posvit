@@ -1,0 +1,172 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+TutorialsJupyter NotebooksSyllabus
+Syllabus
+warning
+This is an advanced tutorial for setting up Jupyter Notebooks via VS Code using a container and a ProxyJump. The tutorial is a good demonstration of many Hyak fundamental skills, but there are other streamlined ways to use Jupyter and VS Code. Use the following links to navigate to those docs:
+
+Jupyter via Open OnDemand
+
+Jupyter via SSH port forwarding
+
+Using VS Code on Hyak
+
+Goals & Rationale
+Our first goal is to provide a tutorial that connects many Hyak foundational skills so that researchers can learn and customize these tools to fit their needs.
+The Hyak documentation already includes many of the instructions in this guide, but they're atomic. Instead of individual instruction sets, which aren't designed with each other in mind, everything in this guide is connected - python environments, jupyter notebook server, and connections to other external software. That means, for example, the SSH customizations in this guide will apply only to the container runscripts we build in this guide; to use these elements for other workflows, you will need to customize them to fit your needs.
+
+Our second goal is to eliminate the most common problem on Hyak: conda's decimation of file quotas.
+The conda ecosystem is a powerful resource for researchers, and unsurprisingly it is among the most commonly-used pieces of software on the cluster. One of the things conda does—whether you're building lean with Miniconda or with Anaconda—is create tens of thousands of files.
+
+Due to the way GPFS (the technology behind our shared filesystems) handles inodes, we have cautious quotas on the number of files individuals and groups are allowed to create. Home directories are limited to 256,000 files, which may seem large, but almost every day we answer a ticket where conda has busted a quota. Due to the integral nature of home directories on Linux, this means most things just won't work until the user clears up some files.
+
+This guide takes a different approach. We're not going to use 1,000 files, 10,000 files or 100,000 files for conda, we're going to use one: an Apptainer overlay.
+
+Our third goal is to demystify containers enough that they're the default choice for our researchers.
+One of the most common questions we answer, especially from new HPC users, is "how do I install this piece of software?" When you use a search engine to answer that question, the results mostly require elevated privileges—sudo, on our systems—which we won't grant under any circumstances for a variety of reasons. We're going to answer a more precise question, "how do I install this piece of software on Hyak?": the simplest way, most of the time, is to use a container. Here, we're going to build something general-purpose that, if it doesn't already meet your needs, we encourage you to modify it to meet your needs.
+
+PRO TIP
+As you go through the tutorial look for tips like this one. In these boxes, we will include bits of information you might be able to use to customize this tutorial when you feel comfortable.
+
+On that note, your first PRO TIP: Untangling tech jargon is tough, and there's no shortage of essays explaining containers and "containerization" (See Additional Resources). We encourage you to educate yourself about containers and other relevant topics as additional learning to accompany this tutorial.
+
+A mental model for best practices.
+Using a high-performance computing cluster the Right Way is a unique skillset, and the best practices you've learned on one cluster aren't necessarily correct on others. We're hoping that a walkthrough like this—which covers installing and connecting to your software in reusable, reproducible environments—will help cement some of the best practices for Hyak, and make building a workflow a bit quicker.
+
+Course Description
+We are going to create a general-purpose, customizable Apptainer container to use on the Klone Hyak cluster for the following tasks:
+
+Installing Conda in a mutable container overlay.
+Starting & connecting to a Jupyter Notebook server.
+Running Slurm & custom Hyak commands.
+Using VS Code as your platform for running Jupyter Server on Hyak.
+Course Content
+check your OS
+Be advised that we have broken the tutorial into separate instructions for Mac/Linux and Windows users. The same content is covered, but with different steps.
+
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Acknowledgements
+Special thanks goes out to the researchers who volunteered their time to provide feedback and testing for these instructions. Collaboration makes writing these sorts of how-to's much quicker: explaining "how" is easier when we know "what."
+
+Previous
+Parameter Sweep
+Next
+Getting Started
+Goals & Rationale
+Course Description
+Course Content
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

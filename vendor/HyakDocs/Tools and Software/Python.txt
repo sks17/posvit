@@ -1,0 +1,239 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Tools & SoftwarePython
+Python
+Python is a scripting and general purpose programming language with a rich ecosystem of computational libraries. On both Hyak Klone and Tillicum it's widely used for machine learning (PyTorch, TensorFlow), data science, and general computing. We recommend using the Conda module (module load conda) as the primary way to manage Python environments on both Hyak Klone and Tillicum. The Conda module was previously available only on Tillicum and is now fully supported on Klone as well. Using the Conda module means no Miniconda installation is required, more efficient storage usage, and cleaner, isolated Python environments that are easier to debug, reproduce, and clean up. For users who need full reproducibility and portability, containers are an alternative approach.
+
+Conda Module
+Load the Conda Module
+Load the Conda module to make the conda command available:
+
+module load conda
+
+After loading the module, you can create and manage your own environments.
+
+Klone Users
+On Klone, module commands are only available on compute nodes. You must first obtain a compute node via salloc or submit a Slurm batch job before running module load conda.
+
+Tillicum Users
+On Tillicum, modules are available on login nodes. However, login nodes are CPU-only. If you need to install packages with GPU support (e.g., PyTorch with CUDA), do so on a compute node with a GPU allocated.
+
+Create and Manage Environments
+Conda allows you to create isolated environments that include specific versions of Python, libraries, and tools.
+
+Create an environment named "myenv" with Python 3.12 and the NumPy package:
+
+conda create --name myenv python=3.12 numpy
+
+Activate the environment to use it:
+
+conda activate myenv
+
+List your available Conda environments:
+
+conda env list
+
+Remove an environment:
+
+conda env remove --name myenv
+
+To install additional packages in your environment, use conda install. Conda has several default channels that will be used first for package installation. If you want to use another channel beyond the defaults, you can, but we suggest that you select your channel carefully.
+
+Storage Considerations
+Home Directory Storage Limit
+By default, the system Conda stores environments in your home directory ($HOME/.conda/envs). We recommend installing Conda environments to your project directory due to the limited storage space (10 GB) in your home directory.
+
+Klone: Use a path under /gscratch/<group>/<myfolder>
+Tillicum: Use a path under /gpfs/projects/<group>/<myfolder>
+Please follow the instructions below to customize your environment and package locations.
+
+Scrubbed Storage Not Recommended
+We do not recommend storing Conda environments in scrubbed storage. Many files inside a Conda environment retain the original access times from when they were added to the Conda package cache, not when you created or installed the environment. These files may appear inactive and can be removed by the scrubbed storage erasure policies, leading to corrupted Conda environments.
+
+Customize Environment and Package Locations
+There are two ways to specify where your Conda environments and packages are stored.
+
+Option 1. Use --prefix for explicit paths
+Manually set the path to your Conda environment with --prefix and always activate your Conda environment with the full path.
+
+Klone:
+
+module load conda
+conda create --prefix /gscratch/<myproject>/<myfolder>/myenv python=3.12
+conda activate /gscratch/<myproject>/<myfolder>/myenv
+conda install numpy scipy matplotlib
+
+Tillicum:
+
+module load conda
+conda create --prefix /gpfs/<myproject>/<myfolder>/myenv python=3.12
+conda activate /gpfs/<myproject>/<myfolder>/myenv
+conda install numpy scipy matplotlib
+
+Option 2. Configure defaults in $HOME/.condarc
+To make this the default behavior, edit (or create) the file $HOME/.condarc:
+
+Klone:
+
+envs_dirs:
+  - /gscratch/<myproject>/<myfolder>/conda/envs
+pkgs_dirs:
+  - /gscratch/<myproject>/<myfolder>/conda/pkgs
+
+Tillicum:
+
+envs_dirs:
+  - /gpfs/<myproject>/<myfolder>/conda/envs
+pkgs_dirs:
+  - /gpfs/<myproject>/<myfolder>/conda/pkgs
+
+This will place all of your environments and package caches in the specified directory by default, and you won't have to worry about specifying the full prefix to your environment when installing it or activating it.
+
+Installing Packages with pip
+You can use pip inside a Conda environment to install Python packages. Our suggested use of pip is inside a conda environment. For example:
+
+module load conda
+conda activate myenv
+pip install seaborn
+
+This ensures that pip installs packages into the active Conda environment — not globally — making it easy to clean up completely when you are done.
+
+See the best practices from Anaconda for using pip with Conda and the pip documentation for more information.
+
+Containers
+While we recommend the Conda module for most Python workflows, containers offer additional benefits for certain use cases:
+
+Full reproducibility
+Portability across systems
+Complete encapsulation of the entire software stack including system-level dependencies
+Containers are especially useful for GPU workflows with complex dependencies. The NVIDIA NGC Catalog has pre-built containers with CUDA and NVIDIA drivers configured that work well with the Hyak Klone and Tillicum computing environments.
+
+For detailed instructions on using Apptainer containers on Hyak, see the Containers documentation. If you are new to containers, see the Containers Tutorial to get started.
+
+Cluster-Specific Bind Paths
+When running Apptainer containers, remember to bind the correct storage filesystem for your cluster:
+
+Klone: apptainer shell --bind /gscratch container.sif
+Tillicum: apptainer shell --bind /gpfs container.sif
+Additional Resources
+Disk Storage Management with Conda — Tips for managing disk storage when using Conda on Hyak.
+Conda Configuration Documentation — Official reference for .condarc options and conda configuration.
+Previous
+R and Rstudio
+Next
+Jupyter Notebooks
+Conda Module
+Load the Conda Module
+Create and Manage Environments
+Storage Considerations
+Installing Packages with pip
+Containers
+Additional Resources
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

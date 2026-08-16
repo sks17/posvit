@@ -1,0 +1,184 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+System Architecture
+Get Started
+Join a Group
+Account Creation
+Two-Factor Authentication
+Setup
+SSH & Login Node Usage
+Intracluster SSH Keys
+SSH Port Forwarding
+X11 Forwarding
+Storage
+Start Here
+Storage on Klone
+Compute
+Start Here
+Scheduling Jobs
+Using Idle Resources
+Resource Monitoring
+GPUs
+Start Here
+NVIDIA NGC Containers
+Using Ollama on Hyak
+Tillicum
+System Architecture
+Get Started
+Slurm
+Monitoring Usage
+Software Environment
+Storage
+Open OnDemand
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Start Here
+Ego4d & Ego-Exo4D
+Epic Kitchens
+FineWeb-Edu
+ImageNet
+Kinetics
+Olmo-mix-1124
+TabLib
+TCGA
+The Pile
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Hyak KloneStorageStart Here
+Start Here
+What is storage for a supercomputer?
+Storage on every Hyak cluster (e.g., Klone and Tillicum) is physically separate. It is best practice on every supercomputer that storage live as its own infrastructure to be high-performance and able to handle the bandwidth I/O and read/write operations required by so many compute nodes attached to it. These are typically parallel file systems (e.g., GPFS, Lustre, BeeGFS).
+
+Storage systems are mounted (i.e., accessible) from every compute node of the cluster. Each Hyak cluster (e.g., Klone and Tillicum) has its own separate parallel file system. The storage attached to each Hyak cluster has its own policies, hierarchy, etc. Please refer to their respective pages for more information:
+
+Storage on Klone
+Storage on Tillicum
+warning
+Important Storage Reminder for Hyak Klone
+Hyak Klone does not provide backup, persistent storage, or archival storage. All data on Klone exists as a single copy and is therefore vulnerable to loss due to hardware failure, filesystem issues, facility damage, or natural disasters. Users are solely responsible for transferring important results to external systems (for example, Kopah S3 or Lolo Archive) during the course of their project if persistent or long-term storage is required. Retaining long-term or archival data on Klone is against administrative guidance.
+
+While our storage systems have a track record of stability, it is important to note that STORAGE IS NOT BACKED UP by default on Hyak Klone, while backups are in place for dedicated project storage and home directories on Tillicum. It is the responsibility of the user that in the event of an incident you have a place and plan to restore their data.
+
+On campus storage options:
+Kopah S3 Object Storage
+Lolo Data Archive for persistent, geographically redundant storage.
+Alternatively, UWIT can help you select from commercial storage options that include UW discounts. More information about Cloud Computing options.
+Best Practices: 3-2-1 Policy
+Your data is precious, in some cases completely irreplaceable. The research computing team encourages the use of the widely accepted 3-2-1 backup strategy.
+
+note
+3-2-1 is a general IT best practice see the following references: Backblaze, Acronis, and Networkworld.
+
+The 3-2-1 backup policy suggests 3 copies of your data on 2 different types of storage media of which 1 copy is off-site. If you use both Klone Gscratch (i.e., /gscratch) and Lolo then you are already adhering to this best practice: One copy resides in /gscratch on our parallel file system, and if you archive your data to Lolo, two additional copies are created (it does automatic duplication with one copy on UW-Seattle campus and another copy in eastern Washington). /gscratch consists of spinning disk hard drives as a storage medium while Lolo is a tape-based storage medium. Lolo does one of its automatic duplication copies to a geographically remote data center in eastern Washington.
+
+important
+You have to copy your data to Lolo to be 3-2-1 compliant or to use your own archive solution, it does not happen automatically. See our Lolo documentation for more information.
+
+Previous
+X11 Forwarding
+Next
+Storage on Klone
+What is storage for a supercomputer?
+Important Storage Reminder for Hyak Klone
+Best Practices: 3-2-1 Policy
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle

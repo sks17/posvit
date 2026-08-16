@@ -1,0 +1,220 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+TutorialsJupyter NotebooksStart Up Sequence
+Start Up Sequence
+Your set up is complete. Here is the inventory of the items you prepared to execute this method to connect and run Jupyter Notebook from Hyak:
+
+Element	klone or local	Notes
+hyak-container.sif	klone	container image; directly or with a symbolic link
+conda-overlay.img	klone	container overlay with conda and jupyter environment; in read-write or read-only mode
+launch-container.sh	klone	launches container and overlay; in read-write or read-only mode
+start-jupyter-server.sh	klone	starts jupyter
+jupyter-server.job	klone	sbatch script that launches the container-overlay and jupyter as a Slurm job
+~/.ssh/config	local	creates ssh klone-login short cut
+~/.ssh/klone-node-config	local	creates ssh klone-node short cut for ProxyJump
+set-hyak-node.sh	local	Mac/Linux Only - replaces Hostname in ~/.ssh/klone-node-config for convenience
+start-jupyter-forwarding.sh	local	starts port forwarding and provides web address for Jupyter Notebook
+important
+Before we begin the Start Up Sequence, make sure that you have no jobs called klone-container running on klone.
+
+squeue --user $USER
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          12345678      ckpt klone-container UWNetID  R      00:01      1 n3219
+
+If you do, you can cancel the job with scancel and the JobID:
+
+scancel 12345678
+
+Now we begin the Start Up Sequence:
+
+1. Login to klone
+Log in using your klone-login short cut.
+
+ssh klone-login
+
+2. Navigate to your working directory
+Change directory to the directory you have been using during this tutorial, where you have your materials stored. For example:
+
+cd /gscratch/scrubbed/working-directory
+
+3. Start the Jupyter Slurm job
+Submit the jupyter-server.job script with sbatch to start a job running the container-overlay and jupyter.
+
+sbatch jupyter-server.job
+Submitted batch job 12345678
+
+Use the watch command with the squeue command to monitor the job in real time. watch -n10 will issue the squeue every 10 seconds. Use Ctrl + C to exit the watch command.
+
+watch -n10 squeue --user $USER
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+          12345678      ckpt klone-container UWNetID  R      00:01      1 n3219
+# use Ctrl + C to exit the watch command
+
+Once the job is running, or you see R under the column ST using squeue, use Ctrl + C to exit the watch command.
+
+In your working directory, you will have a file called jupyter-server-XXXXXX.out where the X's are the jobID assigned to the job by Slurm. Use the command tail --follow to print the contents of the jupyter-server-XXXXXX.out file and wait for the message, "Info: Jupyter server is running, port & token in ~/.jupyter-port-and-token." Once you see this message, your Jupyter server session is ready for the next step. (Use Ctrl + C to exit the tail command)
+
+tail --follow jupyter-server-12345678.out
+Info: Jupyter server is running, port & token in ~/.jupyter-port-and-token
+# Use Ctrl + C to exit the tail command
+
+4. Prepare your ProxyJump to the compute node
+caution
+The next steps are performed on your local computer.
+
+Above we used squeue to monitor the job we started. The NODELIST column of the squeue output shows the node where the job is running. This is the Hostname for our ~/.ssh/klone-node-config script.
+
+For Mac/Linux users, let's try to execute the set-hyak-node.sh script and see if it will replace our Hostname with n3219 where the job is running (the compute node will likely be different for you; n3219 is just an example). If it didn't work, please use a text editor to manually change Hostname to the node where your job is running.
+
+For All Users, manually set replace the Hostname line with the correct Hostname of the compute node where your job is running. For example,
+
+cat ~/.ssh/klone-node-config
+
+Host klone-node
+        Hostname n3000
+        ProxyJump klone-login
+
+./set-hyak-node.sh
+cat ~/.ssh/klone-node-config
+
+Host klone-node
+        Hostname n3219
+        ProxyJump klone-login
+
+5. Start Port Forwarding
+caution
+The next steps are performed on your local computer.
+
+Execute the start-jupyter-forwarding.sh script to get the web address to use Jupyter Notebook in the browser.
+
+./start-jupyter-forwarding.sh
+
+Connect to:
+  http://localhost:8888/?token=7e5c7a539a01some346235long38472398625token2392386
+Close tunnel with:
+  kill 99999
+
+
+Copy and paste the web address into your browser, and you should be connected to your Jupyter server where you can work in a Jupyter Notebook.
+
+When you're finished, you can use the kill command we generated to ensure your port forwarding is stopped:
+
+kill 99999
+
+Previous
+Slurm Job & Port Forwarding
+Next
+Jupyter in VS Code
+1. Login to klone
+2. Navigate to your working directory
+3. Start the Jupyter Slurm job
+4. Prepare your ProxyJump to the compute node
+5. Start Port Forwarding
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

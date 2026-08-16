@@ -1,0 +1,165 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+Tillicum
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Start Here
+Ego4d & Ego-Exo4D
+Epic Kitchens
+FineWeb-Edu
+ImageNet
+Kinetics
+Olmo-mix-1124
+TabLib
+TCGA
+The Pile
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Data CommonsThe Pile
+The Pile
+tip
+This dataset is available on Hyak Klone and Tillicum.
+
+Sponsoring groups are Luke Zettlemoyer, Pang Wei Koh, and Hannaneh Hajishirzi. Student users are Rulin Shao, Sewon Min, and Jacqueline He. Initial deployment of October 2023 on Klone. The Pile uncopyrighted version deployed in Sep 2025 on Tillicum.
+
+What is this?
+The Pile is a 825 GiB diverse, open source language modeling data set that consists of 22 smaller, high-quality datasets combined together.
+
+A copy of The Pile with all copyrighted content removed is held on Tillicum.
+
+You can learn more at their website here or from their paper here.
+
+How to prepare for use?
+This serves as instructions for the research computing (i.e., Hyak) team to prepare this data for use on the cluster. It also serves a benefit for computational reproducibility later on.
+
+The format of the Pile is jsonlines data compressed using zstandard.
+
+How to access?
+By accessing this data you agree to their terms of use provided on their website here and MIT License.
+
+The file path on klone is /data/pile.
+
+The file path on tillicum is /gpfs/datasets/pile-uncopyrighted.
+
+How to cite?
+If you use the Pile or any of the components, please cite:
+
+@article{pile,
+  title={The {P}ile: An 800GB Dataset of Diverse Text for Language Modeling},
+  author={Gao, Leo and Biderman, Stella and Black, Sid and Golding, Laurence and Hoppe, Travis and Foster, Charles and Phang, Jason and He, Horace and Thite, Anish and Nabeshima, Noa and Presser, Shawn and Leahy, Connor},
+  journal={arXiv preprint arXiv:2101.00027},
+  year={2020}
+}
+
+
+Previous
+TCGA
+Next
+Start Here
+What is this?
+How to prepare for use?
+How to access?
+How to cite?
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
+J
+F

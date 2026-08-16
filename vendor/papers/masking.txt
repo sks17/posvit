@@ -1,0 +1,522 @@
+This ICCV workshop paper is the Open Access version, provided by the Computer Vision
+        Foundation. Except for this watermark, it is identical to the accepted version;
+         the final published version of the proceedings is available on IEEE Xplore.
+
+Masking Strategies for Background Bias Removal in Computer Vision Models
+
+        Ananthu Aniraj*1,3,4,5 Cassio F. Dantas2,3,5 Dino Ienco2,3,5 Diego Marcos1,3,4,5
+                1Inria 2Inrae 3University of Montpellier 4LIRMM 5UMR-Tetis
+
+     {ananthu.aniraj, diego.marcos}@inria.fr {cassio.fraga-dantas, dino.ienco}@inrae.fr
+
+                        Abstract                                      Training Images    Testing Images
+
+   Models for fine-grained image classification tasks, where      Figure 1: Background bias in fine-grained classification
+the difference between some classes can be extremely sub-
+tle and the number of samples per class tends to be low,        performances when deploying the models on new, Out-of-
+are particularly prone to picking up background-related bi-     Distribution (OOD), background configurations [1]. This
+ases and demand robust methods to handle potential exam-        is particularly harmful in fine-grained classification tasks
+ples with out-of-distribution (OOD) backgrounds. To gain        such as species identification (Figure 1), due to the large
+deeper insights into this critical problem, our research in-    number of closely related categories and the strong corre-
+vestigates the impact of background-induced bias on fine-       lations between the object (the specimen of interest) and
+grained image classification, evaluating standard backbone      the background, which tends to relate to the habitat of the
+models such as Convolutional Neural Network (CNN) and           species [2, 12, 28].
+Vision Transformers (ViT). We explore two masking strate-
+gies to mitigate background-induced bias: Early masking,           The standard way to address this type of bias is to
+which removes background information at the (input) image       make the model detect the foreground and focus on it for
+level, and late masking, which selectively masks high-level     classification, both when using Convolutional Neural Net-
+spatial features corresponding to the background. Exten-        works [19] and Transformers [13]. This reduces the influ-
+sive experiments assess the behavior of CNN and ViT mod-        ence of the background on the model's decision, thus reduc-
+els under different masking strategies, with a focus on their   ing the background-induced bias of the model.
+generalization to OOD backgrounds. The obtained findings
+demonstrate that both proposed strategies enhance OOD              Masking the background areas at some CNN high level
+performance compared to the baseline models, with early         representations seem like a simple and straight forward
+masking consistently exhibiting the best OOD performance.       strategy to obtain this effect, as long as some type of
+Notably, a ViT variant employing GAP-Pooled Patch token-        foreground-background (FG-BG) mask can be obtained.
+based classification combined with early masking achieves       After all, the inductive biases that characterize CNNs will
+the highest OOD robustness.                                     induce an association between a high-level feature at a cer-
+                                                                tain tensor location (i.e. before any global pooling) and the
+   Our code and models are available at: GitHub                 image patch at the corresponding image location. However,
+                                                                the Visual Transformers' architecture does not encode for
+1. Introduction                                                 such biases, although they could be learned via supervised
+                                                                or self-supervised learning [4, 22].
+   The context in which an object is found is known to
+have a large influence in how it is perceived, both by hu-         We aim to analyse the impact of dataset bias induced by
+mans [3] and machines [7]. When training deep learning-         background regions in the image on the performance and
+based computer vision models on any object-centric task, it     generalization capabilities of image classification models
+is extremely challenging to ensure that the model does in-
+deed only pay attention to the object of interest, since there
+exist often strong correlations between object characteris-
+tics and the background. Such a bias can lead to degraded
+
+    *Corresponding Author
+
+                                                                4397
+ Classification                                                                                                Classification
+   Classifier                                                                                                    Classifier
+    CNN/ViT
+                                                               CNN/ViT
+Masked Image
+                          Image                                         Feature Maps
+                                 FG/BG
+                                                                                                            X
+                 X
+
+                                                                                                               Masked Feature Maps
+
+Early Masking    Segmentation Mask                                      Resize                                 Late Masking
+
+                 Figure 2: Early and late masking strategies
+
+on fine-grained classification tasks using standard CNN and    overlap [26]. Alternatively, the manifold of learned class
+Vision Transformer (ViT) [11] backbones. Specifically, we      features can be explored in order to manually identify spu-
+study the effect of background masking, both at the image      rious ones that can then be suppressed [21]. With mod-
+level and at high level features, on both CNN and ViT, on      ern Transformer-based architectures, it has been shown that
+a fine-grained classification task. Our main motivation is to  allowing the model to refocus its attention in a top-down
+understand the difference in behaviour, in terms of general-   manner (thus based on the results after a first pass) helps
+ization to OOD backgrounds, of ViT with respect to CNN         in a variety of computer vision tasks [25] by reducing the
+under different strategies of background masking.              effect of background elements.
+
+2. Related Work                                                   In this work, we study the effect on OOD background
+                                                               generalization of masking the image background regions,
+The influence of context The ability of using context for      at either the image level or at the level of an intermediate
+object recognition is often considered an asset, since the     representation within the model.
+context may help disambiguate between otherwise indis-
+tinguishable categories, and the explicit modeling of con-     3. Methodology
+text played an important role in pre-deep learning computer
+vision systems [6, 7]. With the emergence of deep learn-          We aim at studying the effect of dataset bias introduced
+ing approaches, which are capable of automatically extract-    by the image background regions and to what extent it can
+ing features without leveraging user knowledge, the extrac-    be corrected via background masking. We propose to inves-
+tion of spurious correlations induced by contextual bias has   tigate the following three training settings:
+started to be perceived as a potential issue [12, 26, 28].
+Such effect can happen to the extent that CNN models may          · Baseline: Fine-tune a standard image classification
+perform reasonably well when given only the background,              model from the literature on a fine-grained image clas-
+without the object of interest [33].                                 sification dataset.
+
+Mitigating context-induced bias In early computer vi-             · Early masking: Apply background masking at the
+sion systems for object recognition, performing a pre-               image level using foreground-background (FG-BG)
+processing step of foreground segmentation was identified            masks. We then fine-tune image classification models
+as an effective solution against background bias [23]. When          to classify the masked out image.
+the context classes are known, another approach is to make
+sure that the learned attention maps for each class do not        · Late masking: Mask out high-level representations
+                                                                     that spatially correspond to background regions at an
+                                                                     intermediate stage of an image classification model us-
+
+                                                               4398
+      ing the FG-BG masks. Subsequently, we fine-tune the        where M = M/k and N = N/k, with k being the
+      resulting model.                                           model's spatial downsampling ratio. In the case of ViT, this
+                                                                 spatial tensor results from the spatial rearrangement of the
+   The FG-BG masks are obtained by applying a semantic           patch tokens' features, each a vector of dimension D.
+segmentation network trained on ground-truth foreground-
+background masks.                                                   The classification head g2 (·) performs a global average
+                                                                 pooling followed by at least one learnable linear layer.
+   In order to investigate the generalization capabilities of
+the models under the different settings, we propose to eval-        The late masking strategy allows selectively masking out
+uate them on a test set that has a different background dis-     background-related features at a later stage in the model,
+tribution than the train set.                                    enabling the model to learn representations based solely on
+                                                                 foreground image features.
+3.1. Binary FG-BG Segmentation
+                                                                 4. Experiments
+   For binary segmentation, we trained a deep neural net-
+work using the segmentation labels provided by the CUB-          4.1. Dataset
+200-2011 dataset [27]. The objective was to classify each
+pixel in the image as either bird or background.                    All our models are trained on the training set of CUB
+                                                                 [27]. This dataset contains images of 200 bird species, with
+   Given an image x  R3×M×N , the segmentation                   5,994 images in the training set and 5,794 images in the
+network was trained to produce a binary mask m                   testing set.
+{0, 1}1×M×N , where 0 represents the background, and 1
+represents the foreground.                                          The trained models are evaluated on two test sets: (i) the
+                                                                 in-distribution real-world images of the CUB test set [ 27]
+3.2. Early Masking                                               and (ii) an Out-Of-Distribution (OOD) set of images with an
+                                                                 adversarial background, specifically the Waterbirds dataset
+   For this strategy (Figure 2 left), we first mask out          from [24].
+the background image regions using the binary segmenta-
+tion network and then pass the masked image to a stan-              The Waterbirds dataset [24] was constructed by replac-
+dard CNN/Transformer-based image classifier model. The           ing the background regions in the CUB images with ones
+CNN/ViT model is composed of two stages: a backbone              coming from the Places dataset [32]. Therefore, this dataset
+h1 (·) (CNN or ViT) and a classification head g2 (·). More       contains the exact same bird species as CUB, with the only
+formally, we can define it as:                                   difference being the background.
+
+             y = g2 (h1 (x m))                      (1)          4.2. Implementation Details
+
+where each channel of the image (x) is multiplied element-          All models were implemented in PyTorch. For the
+wise by the FG-GB binary mask (m) and y  RC is the               sake of comparison, we used the ImageNet-pretrained Con-
+                                                                 vNeXt [16] and DinoV2-pretrained ViT [22] backbones as
+vector of class logits.                                          starting weights for all the experiments.
+
+The idea here is to mask out background features at the             We utilized the Small (S), Base (B), and Large (L) vari-
+                                                                 ants of the ViT and ConvNeXt models for our experiments.
+image level, forcing the model to only look at the salient       These variants allowed us to explore the impact of model
+                                                                 size on the performance of our masking strategies.
+object in the image for the classification task, ideally learn-
+                                                                    To perform binary segmentation, we fine-tuned a pre-
+ing representations independent of bias caused by the image      trained Mask2Former [5] model with a Swin-Tiny backbone
+                                                                 [15] using the FG-BG masks provided along with the CUB
+background.                                                      dataset. We use only the images from the CUB training
+                                                                 dataset to train the segmentation model. The Mask2Former
+3.3. Late Masking                                                model was chosen for its effectiveness in image segmenta-
+                                                                 tion tasks. However, in theory, any semantic segmentation
+   In this strategy (Figure 2 right), the high-level spatial     model can be used in its place. Detailed information regard-
+features corresponding to the background are masked out,         ing the training settings for the binary segmentation model,
+similar to the feature masking layer proposed in [10]. More      as well as the evaluation results, can be found in the supple-
+formally, this strategy can be defined as:                       mentary material.
+
+             y = g2 (h1 (x) m )                     (2)          4.3. Training Settings
+
+   Here, y represents the final classification logits, x is the     For all our experiments, we used two different versions
+input image, and m is the subsampled version of the binary       of training settings:
+
+FG-BG mask.
+   The backbone h1 (·) outputs a spatial tensor z.
+
+             z = h1 (x)  RD×M ×N
+
+                                                    4399
+Models                  ConvNeXt-S/B/L  ViT-S/B/L                4.4. The Effect of Early Masking and Model Size
+
+Input Size              (224, 224)      (518, 518)                  The main aims of this experiment are to investigate:
+Optimizer               AdamW [17]      AdamW [17]                (i) The impact of adopting our early masking strategy.
+Base LR                 4e-3            1e-3                     (ii) The interplay between this masking strategy and vary-
+Weight Decay            5e-2            1e-2
+Optimizer momentum      (0.9, 0,999)    (0.9, 0,999)                   ing model sizes.
+Batch Size              128             128                         For this experiment, we train classifiers while keeping
+Training Epochs         90              90                       the ViT and ConvNeXt backbones of three different sizes
+Learning Rate Schedule  Cosine Decay    Cosine Decay             frozen. The training is performed on the CUB dataset, with
+Warmup Epochs           None            None                     two scenarios: one involving input images masked using the
+Warmup Schedule         N/A             N/A                      predicted FG-BG masks and the other without any masking.
+RandAugment [9]         (9, 0.5)        (9, 0.5)                 To extract features for classification in the ViT model, we
+Mixup [30]              None            None                     concatenate the class token with the global average-pooled
+Cutmix [29]             None            None                     (GAP) patch token features, following a similar implemen-
+Random Erasing [31]     0.25            0.25                     tation as described in [22].
+Label Smoothing [20]    0.1             0.1                         To ensure a comprehensive evaluation, we also assess the
+Stochastic Depth [14]   0.1/ 0.2/ 0.3   0.0                      model trained on masked images with the original images
+Frozen Backbone                                                  and vice versa. This provides insights into the effectiveness
+                                                                 of the early masking strategy and its sensitivity to different
+Table 1: Training Settings for frozen backbone                   model sizes.
+
+Models                  ConvNeXt-S/B/L  ViT-S/B/L                4.5. Baseline vs Early Masking vs Late Masking
+
+Input Size              (224, 224)      (518, 518)                  The aims of this experiment are to study:
+Optimizer               AdamW [17]      AdamW [17]                (i) The effects of applying both of our proposed masking
+LR(Backbone)            4e-6            4e-6
+LR(Classifier)          4e-3            4e-3                           strategies.
+Weight Decay            5e-2            5e-2                     (ii) The performance with a frozen and a fine-tuned back-
+Optimizer momentum      (0.9, 0,999)    (0.9, 0,999)
+Batch Size              64              64                             bone
+Training Epochs         300             300                         For this experiment, we chose two models of approx-
+Learning Rate Schedule  Cosine Decay    Cosine Decay             imately the same size: the ViT-Base and the ConvNeXt-
+Warmup Epochs           20              20                       Base, due to their balanced compromise between perfor-
+Warmup Schedule         Linear          Linear                   mance and computational cost.
+RandAugment [9]         (9, 0.5)        (9, 0.5)
+Mixup [30]              0.8             0.8                      4.6. Feature masking at different model stages
+Cutmix [29]             1.0             1.0
+Random Erasing [31]     0.25            0.25                        The main aim of this experiment is to study the effect of
+Label Smoothing [20]    0.1             0.1                      applying late feature masking at different stages in the net-
+Stochastic Depth [14]   0.1/ 0.2/ 0.3   0.1                      work. In this scenario, early masking would be equivalent
+Frozen Backbone                                                  to applying masking at stage L = 0.
+
+Table 2: Training Settings for fine-tuning                          Concretely, we experimented with performing the fea-
+                                                                 ture masking after the second-to-last stage of the model
+(i) For models with a frozen backbone, we utilized the           (L - 1) and compared the OOD and in-distribution perfor-
+     settings described in Table 1. In this case, only the       mance with the masking after the last stage (L) and the early
+     final classification layer was trained, and we employed     masked model (L = 0).
+     a relatively short training schedule of 90 epochs.
+                                                                    The training settings for this experiment are similar to
+(ii) For models with fine-tuning, we employed the settings       the fine-tuning settings given in Table 2. Here, the model
+     described in Table 2. In this case, all layers in the net-  training requires two learning rates: one before and one af-
+     work were trained for a longer schedule of 300 epochs,      ter the feature masking, to ensure convergence.
+     with additional regularization techniques like MixUp
+     [30] and CutMix [29].                                          We were only able to perform this experiment for the
+                                                                 ConvNeXt models, as we encountered challenges in finding
+                                                                 stable training hyperparameters for masking the ViT at the
+                                                                 (L - 1)th stage.
+
+                                                                 4.7. Varying the ViT representation
+
+                                                                    In this experiment, we aim to:
+
+                                                      4400
+                                    CUB(%)                                   Waterbird(%)
+
+            Training on CUB  Test on original Test on masked                 Test on original Test on masked
+
+ConvNeXt-S       Baseline    86.56                                    78.60  55.82  67.12
+ConvNeXt-B       Masked      83.84                                    84.43  64.21  77.33
+ConvNeXt-L
+                 Baseline    88.00                                    77.52  65.96  68.51
+    ViT-S        Masked      84.36                                    85.69  67.21  80.10
+    ViT-B
+    ViT-L        Baseline    88.05                                    78.68  66.83  70.69
+                 Masked      87.22                                    87.38  73.67  82.81
+
+                 Baseline    88.26                                    82.27  71.15  77.59
+                 Masked      85.89                                    87.92  78.61  84.05
+
+                 Baseline    89.20                                    87.69  76.65  83.00
+                 Masked      88.35                                    90.10  82.15  86.93
+
+                 Baseline    89.79                                    88.91  80.76  85.61
+                 Masked      88.35                                    91.06  84.67  88.30
+
+            Table 3: Results: Early Masking vs Baseline
+
+ (i) Vary the input to the ViT classification head to explore   nal images are influenced by biases from the image back-
+      different ablations of the information extracted by the   grounds, which leads to lower generalization on the Water-
+      ViT model.                                                bird test set when the background is not masked.
+
+(ii) Investigate the performance differences between these         We also observe a performance boost for the baseline
+      ablations when the backbone is frozen versus when the     models when tested on the early masked version of the Wa-
+      entire model is fine-tuned.                               terbirds Dataset. This suggests that these models might
+                                                                have been relying on background cues to make decisions,
+   More precisely, we conduct experiments and evaluate          which the early masking strategy helps to mitigate.
+the performance using three different inputs for the linear
+classification layer: (i) using the CLS token, (ii) using the      Furthermore, the best overall performances on the orig-
+Global Average Pooled (GAP) Patch token, and (iii) con-         inal CUB dataset are obtained by ViT-L and ViT-B when
+catenating them together (CLS+Patch).To manage compu-           early masking is performed both at train and test stage. In
+tational constraints, we focus solely on the ViT-Base model     contrast, when using convolutional models, this setting per-
+for this study.                                                 forms less well than the original one. This suggests that: (i)
+                                                                ViT models are less sensitive than CNNs to potential arti-
+5. Results and Discussion                                       facts induced by masking and (ii) the original CUB dataset
+                                                                is negatively affected by background-induced biases.
+5.1. The Effect of Early Masking and Model Size
+                                                                5.2. Baseline vs Early Masking vs Late Masking
+   The performance of models trained with a frozen back-
+bone, both with and without the early masking strategy, is      Effect of freezing the model backbone
+evaluated using all combinations of test settings. The results
+of these evaluations are reported in Table 3.                   The results are given in Table 4. Upon analyzing the table, it
+                                                                is evident that the early masking strategy shows the highest
+   From the table, it is evident that the models trained with   generalization performance on the OOD Waterbird test set
+the early masking technique consistently outperform their       for both backbones.
+counterparts trained without the masking strategy on the
+OOD Waterbirds test set, regardless of the backbone and            For the ConvNeXt model with a frozen backbone, we
+model size. This improvement holds true when the early-         observe a substantial performance improvement when em-
+masked models are tested on both the original and masked        ploying both the early and late masking training strategies.
+images. For instance, with ConvNeXt-B, the OOD perfor-          This suggests that the high-level features spatially corre-
+mance improves from 65.96% to 80.10% when the images            sponding to the foreground are highly localized [18], likely
+are masked at both training and testing time, and for ViT-B,    due to the inductive biases in the CNN architecture, result-
+it increases from 76.65% to 86.93%.                             ing in high spatial correlation of features even at the later
+                                                                stages of the network.
+   These results suggest that models trained on the origi-
+                                                                   In the case of the ViT model with a frozen backbone,
+
+                                                                4401
+ Backbone   Training on CUB         CUB(%)                                          Waterbird(%)
+ConvNeXt-B                   Frozen Fine-tuned                                  Frozen Fine-tuned
+                 Baseline
+    ViT-B    Early-Masked    88.00                                  89.62       65.96    76.20
+              Late-Masked    85.69                                  90.31       80.10    87.01
+                             87.66                                  88.76       77.95    78.42
+                 Baseline
+             Early-Masked    89.20                                  89.38       76.55    68.36
+              Late-Masked    90.10                                  91.37       86.93    88.81
+                             88.61                                  90.73       76.55    74.76
+
+Table 4: Results of 4.5 - Frozen backbone vs Fine-tuning
+
+the late-masked and baseline models perform similarly on             Backbone   Feature  CUB(%)    Waterbird(%)
+both the in-distribution CUB dataset and the OOD Water-             ConvNeXt-S  Masking
+bird dataset. This indicates that the early masking strategy        ConvNeXt-B            88.73        77.19
+helps prevent the ViT model, with frozen backbone param-            ConvNeXt-L      L     89.35        81.22
+eters, from being influenced by background-related biases.                       L-1      90.73        87.95
+                                                                                          88.76        78.42
+Effect of fine-tuning                                                               0     89.04        80.04
+                                                                                    L     90.31        87.01
+Fine-tuning consistently improves in-distribution perfor-                        L-1      89.80        79.39
+mance on the CUB test set for both ConvNeXt and ViT                                 0     89.49        79.68
+models (Table 4). However, we do not observe a similar                              L     90.99        88.19
+behavior on OOD data.                                                            L-1
+                                                                                    0
+   The early-masked model, for both ViT and CNN,
+demonstrates the best generalization, consistent with the     Table 5: Results of adopting feature masking at different
+findings from previous experiments.                           stages. In this table, L: after last stage, (L-1): after second
+                                                              last stage. 0: early masking/at image level
+   For ConvNeXt, fine-tuning the baseline and early
+masked models leads to improvements in both in-               size increases, unless the masking is done at the image level
+distribution performance and significant advances in OOD      itself. For instance, the ConvNeXt-Large model performs
+generalization. However, the late-masked model shows          approximately the same regardless of whether the masking
+only marginal performance gains.                              was applied after the last stage or the second last stage.
+
+   In the case of the ViT, we see a reduction in robust-         Overall, these results suggest that feature masking at an
+ness for both the baseline and late-masking variant on the    earlier layer of the network has a positive impact on both
+OOD Waterbirds test set, with the baseline experiencing       in-distribution and OOD performances.
+a more evident performance drop-off. This indicates that,
+with longer training, the ViT model becomes more suscepti-    5.4. Varying the ViT representation
+ble to overfitting when background correlations are present
+in the training data, unless the background is masked out at     The results of the experiment are reported in Table 6.
+the image level.                                              Fine-tuning the models generally improves in-distribution
+                                                              performance on the CUB dataset. Notably, the model using
+5.3. Feature masking at different model stages                only Patch tokens exhibits a substantial accuracy increase
+                                                              from 62% to 90% for the baseline, 72% to 92% for the early
+   The results of adopting feature masking at different       masked, and 84% to 91% for the late-masked variants.
+stages in the network are presented in Table 5. It shows
+that both the in-distribution and OOD performance system-        On the OOD Waterbird dataset, fine-tuning the baseline
+atically improve when background masking is applied at an     model using both CLS and Patch tokens leads to reduced
+earlier stage in the network. This observation suggests that  performance. This pattern also repeats for the model using
+earlier layers of the CNN are more spatially correlated with  just the CLS token. However, we see a notable improve-
+the image patches at their corresponding locations, possibly  ment for the model using just the Patch tokens, where the
+due to the comparatively smaller receptive fields.            accuracy increases from 25% to 68%.
+
+   Furthermore, we can note that the improvement in ro-          In contrast, the early and late-masked models benefit
+bustness of the models tends to decrease as the CNN model     from fine-tuning, showing improved OOD generalization
+                                                              with either CLS or Patch token input. Particularly, the ViT
+
+                                                              4402
+Backbone  Training on CUB        ViT                                        CUB(%)          Waterbird(%)
+  ViT-B        Baseline    representation                            Frozen Fine-tuned  Frozen Fine-tuned
+
+           Early-Masked         CLS                                  90.04  90.47       80.35  71.35
+            Late-Masked         Patch                                62.24  90.05       24.71  67.74
+                            CLS+Patch                                89.20  89.38       76.65  68.36
+
+                                CLS                                  90.33  91.73       86.81  88.60
+                                Patch                                72.17  91.51       66.37  89.22
+                            CLS+Patch                                90.10  91.37       86.93  88.81
+
+                                CLS                                  89.16  90.78       75.10  80.54
+                                Patch                                84.15  90.85       71.63  84.50
+                            CLS+Patch                                88.61  90.73       76.55  74.76
+
+          Table 6: Results of varying the representation of the ViT.
+
+model employing GAP-Pooled Patch token classification,         ground suppression as a training objective, aiming for en-
+considering both early and late masking strategies, clearly    hanced out-of-distribution generalization. Notably, recent
+outperforms all the other variants.                            work by Chou et al. [8] also emphasizes similar directions
+                                                               in the context of fine-grained image classification.
+   The experiment highlights the importance of studying
+which representations are utilized for the classifier layer       These limitations underscore the potential for future re-
+in ViT models to enhance performance in fine-grained           search endeavors aimed at refining and expanding the effec-
+image classification tasks, particularly in the presence of    tiveness of our proposed methods.
+background-induced biases. The use of Patch tokens, es-
+pecially in conjunction with early or late masking, emerges    7. Conclusion
+as a promising strategy. This approach allows the model to
+focus on foreground-containing tokens and enhances model          In this study, we conducted extensive experiments to in-
+generalization with respect to background-induced biases.      vestigate the impact of background-induced bias on the gen-
+                                                               eralization capabilities of CNN and ViT models for fine-
+6. Limitations and Future Work                                 grained image classification on out-of-distribution (OOD)
+                                                               data and explored various background masking strategies to
+   Our study provides valuable insights and lays the foun-     mitigate such biases and enhance model generalization.
+dation for potential solutions; however, certain limitations
+point to avenues for future exploration:                          Overall, our results revealed that the proposed masking
+                                                               strategies improve OOD performance, with the early mask-
+   Dataset Scope and Pre-trained Models: The research          ing strategy exhibiting the best generalization capability on
+study was mainly restricted to the CUB dataset, and we uti-    both CNN and ViT. Early masking is particularly advan-
+lized publicly available pre-trained models due to time and    tageous when fine-tuning the model backbones, with late
+computational constraints. Expanding our assessment to en-     masking not benefiting from fine-tuning and even loosing
+compass larger datasets featuring diverse species and back-    some OOD generalization capacity in the case of ViT. No-
+grounds, while also maintaining better control over pre-       tably, a ViT variant employing GAP-Pooled Patch token-
+training methodologies, will enhance the generalizability      based classification, combined with early masking, exhibits
+and robustness of our conclusions.                             the highest OOD robustness of all tested settings.
+
+   Real-World Robustness: Our reliance on FG-BG                   While our study provides valuable insights and solu-
+ground truth annotations during segmentation model train-      tions, certain limitations remind us of unexplored frontiers.
+ing may not align with scenarios where such privileged in-     Expanding investigations to larger datasets, controlled pre-
+formation is unavailable. Deploying our proposed models        training methodologies, and considering real-world scenar-
+on real-world datasets without access to FG-BG annotations     ios lacking FG-BG annotations are essential steps toward
+could yield further insights into its robustness.              refining and extending the impact of our methods.
+
+   Computational Overhead: Our proposed masking                   In conclusion, our study emphasizes the significance of
+strategies involving the segmentation model introduce com-     considering background information in object-centric tasks
+putational overhead, which could be infeasible in scenar-      and demonstrates effective solutions to mitigate biases and
+ios with tight time constraints. To this end, future research  enhance model generalization.
+could explore techniques that seamlessly integrate back-
+
+                                                               4403
+References                                                             [15] Z. Liu, Y. Lin, Y. Cao, H. Hu, Y. Wei, Z. Zhang, S. Lin, and
+                                                                             B. Guo. Swin Transformer: Hierarchical Vision Transformer
+ [1] A. Barbu, D. Mayo, J. Alverio, W. Luo, C. Wang, D. Gut-                 using Shifted Windows. In Proceedings of the IEEE Interna-
+      freund, J. Tenenbaum, and B. Katz. Objectnet: A large-scale            tional Conference on Computer Vision, pages 9992­10002,
+      bias-controlled dataset for pushing the limits of object recog-        2021.
+      nition models. Advances in neural information processing
+      systems, 32, 2019.                                               [16] Z. Liu, H. Mao, C. Y. Wu, C. Feichtenhofer, T. Darrell, and
+                                                                             S. Xie. A ConvNet for the 2020s. Proceedings of the IEEE
+ [2] S. Beery, G. Van Horn, and P. Perona. Recognition in terra              Computer Society Conference on Computer Vision and Pat-
+      incognita. In Proceedings of the European conference on                tern Recognition, 2022-June:11966­11976, 2022.
+      computer vision (ECCV), pages 456­473, 2018.
+                                                                       [17] I. Loshchilov and F. Hutter. Decoupled weight decay regu-
+ [3] I. Biederman, R. J. Mezzanotte, and J. C. Rabinowitz. Scene             larization. 7th International Conference on Learning Repre-
+      perception: Detecting and judging objects undergoing re-               sentations, ICLR 2019, 2019.
+      lational violations. Cognitive psychology, 14(2):143­177,
+      1982.                                                            [18] W. Luo, Y. Li, R. Urtasun, and R. Zemel. Understanding
+                                                                             the effective receptive field in deep convolutional neural net-
+ [4] M. Caron, H. Touvron, I. Misra, H. Jegou, J. Mairal, P. Bo-             works. Advances in Neural Information Processing Systems,
+      janowski, and A. Joulin. Emerging Properties in Self-                  (Nips):4905­4913, 2016.
+      Supervised Vision Transformers. In Proceedings of the IEEE
+      International Conference on Computer Vision, pages 9630­         [19] X. Luo, L. Wei, L. Wen, J. Yang, L. Xie, Z. Xu, and Q. Tian.
+      9640, 2021.                                                            Rectifying the shortcut learning of background for few-shot
+                                                                             learning. NeurIPS, 34:13073­13085, 2021.
+ [5] B. Cheng, I. Misra, A. G. Schwing, A. Kirillov, and R. Gird-
+      har. Masked-attention Mask Transformer for Universal Im-         [20] R. Mu¨ller, S. Kornblith, and G. Hinton. When does label
+      age Segmentation. In CVPR, 2022.                                       smoothing help?, 2019.
+
+ [6] M. J. Choi, A. Torralba, and A. S. Willsky. A tree-based          [21] Y. Neuhaus, M. Augustin, V. Boreiko, and M. Hein. Spurious
+      context model for object recognition. IEEE transactions on             features everywhere­large-scale detection of harmful spuri-
+      pattern analysis and machine intelligence, 34(2):240­252,              ous features in imagenet. arXiv preprint arXiv:2212.04871,
+      2011.                                                                  2022.
+
+ [7] M. J. Choi, A. Torralba, and A. S. Willsky. Context mod-          [22] M. Oquab, T. Darcet, T. Moutakanni, H. Vo, M. Szafraniec,
+      els and out-of-context objects. Pattern Recognition Letters,           V. Khalidov, P. Fernandez, D. Haziza, F. Massa, A. El-
+      33(7):853­862, 2012.                                                   Nouby, M. Assran, N. Ballas, W. Galuba, R. Howes, P.-Y.
+                                                                             Huang, S.-W. Li, I. Misra, M. Rabbat, V. Sharma, G. Syn-
+ [8] P.-Y. Chou, Y.-Y. Kao, and C.-H. Lin. Fine-grained Visual               naeve, H. Xu, H. Jegou, J. Mairal, P. Labatut, A. Joulin,
+      Classification with High-temperature Refinement and Back-              and P. Bojanowski. DINOv2: Learning Robust Visual Fea-
+      ground Suppression. (March):1­9, 2023.                                 tures without Supervision. arXiv preprint arXiv:2304.07193,
+                                                                             2023.
+ [9] E. D. Cubuk, B. Zoph, J. Shlens, and Q. V. Le. RandAug-
+      ment: Practical automated data augmentation with a reduced       [23] A. Rosenfeld and D. Weinshall. Extracting foreground
+      search space. In Advances in Neural Information Processing             masks towards object recognition. In 2011 International
+      Systems, volume 2020-Decem, 2020.                                      Conference on Computer Vision, pages 1371­1378. IEEE,
+                                                                             2011.
+[10] J. Dai, K. He, and J. Sun. Convolutional feature masking
+      for joint object and stuff segmentation. Proceedings of the      [24] S. Sagawa, P. W. Koh, T. B. Hashimoto, and P. Liang. Dis-
+      IEEE Computer Society Conference on Computer Vision and                tributionally Robust Neural Networks for Group Shifts: on
+      Pattern Recognition, 07-12-June:3992­4000, 2015.                       the Importance of Regularization for Worst-Case General-
+                                                                             ization. In 8th International Conference on Learning Repre-
+[11] A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn,                sentations, ICLR 2020, 2020.
+      X. Zhai, T. Unterthiner, M. Dehghani, M. Minderer,
+      G. Heigold, S. Gelly, J. Uszkoreit, and N. Houlsby. An Im-       [25] B. Shi, T. Darrell, and X. Wang. Top-down visual attention
+      age Is Worth 16X16 Words: Transformers for Image Recog-                from analysis by synthesis. In Proceedings of the IEEE/CVF
+      nition At Scale. ICLR 2021 - 9th International Conference              Conference on Computer Vision and Pattern Recognition,
+      on Learning Representations, 2021.                                     pages 2102­2112, 2023.
+
+[12] R. Geirhos, J.-H. Jacobsen, C. Michaelis, R. Zemel, W. Bren-      [26] K. K. Singh, D. Mahajan, K. Grauman, Y. J. Lee, M. Feiszli,
+      del, M. Bethge, and F. A. Wichmann. Shortcut learn-                    and D. Ghadiyaram. Don't judge an object by its context:
+      ing in deep neural networks. Nature Machine Intelligence,              Learning to overcome contextual bias. In Proceedings of
+      2(11):665­673, 2020.                                                   the IEEE/CVF Conference on Computer Vision and Pattern
+                                                                             Recognition, pages 11070­11078, 2020.
+[13] M. Hiller, R. Ma, M. Harandi, and T. Drummond. Rethinking
+      generalization in few-shot classification. Advances in Neural    [27] P. Welinder, S. Branson, T. Mita, C. Wah, F. Schroff, S. Be-
+      Information Processing Systems, 35:3582­3595, 2022.                    longie, and P. Perona. Caltech-UCSD Birds 200. Technical
+                                                                             Report CNS-TR-2010-001, California Institute of Technol-
+[14] G. Huang, Y. Sun, Z. Liu, D. Sedra, and K. Q. Weinberger.               ogy, 2010.
+      Deep Networks with Stochastic Depth. In B. Leibe, J. Matas,
+      N. Sebe, and M. Welling, editors, Computer Vision ­ ECCV         [28] K. Y. Xiao, L. Engstrom, A. Ilyas, and A. Madry. Noise
+      2016, pages 646­661, Cham, 2016. Springer International                or signal: The role of image backgrounds in object recogni-
+      Publishing.
+
+                                                                       4404
+      tion. In International Conference on Learning Representa-
+      tions, 2020.
+[29] S. Yun, D. Han, S. Chun, S. J. Oh, J. Choe, and Y. Yoo. Cut-
+      Mix: Regularization strategy to train strong classifiers with
+      localizable features. Proceedings of the IEEE International
+      Conference on Computer Vision, 2019-Octob:6022­6031, 5
+      2019.
+[30] H. Zhang, M. Cisse, Y. N. Dauphin, and D. Lopez-Paz.
+      MixUp: Beyond empirical risk minimization. In 6th Interna-
+      tional Conference on Learning Representations, ICLR 2018
+      - Conference Track Proceedings, 10 2018.
+[31] Z. Zhong, L. Zheng, G. Kang, S. Li, and Y. Yang. Ran-
+      dom erasing data augmentation. In AAAI 2020 - 34th AAAI
+      Conference on Artificial Intelligence, pages 13001­13008, 8
+      2020.
+[32] B. Zhou, A. Lapedriza, A. Khosla, A. Oliva, and A. Torralba.
+      Places: A 10 Million Image Database for Scene Recognition.
+      IEEE Transactions on Pattern Analysis and Machine Intelli-
+      gence, 40(6):1452­1464, 2018.
+[33] Z. Zhu, L. Xie, and A. Yuille. Object recognition with
+      and without objects. In Proceedings of the 26th Inter-
+      national Joint Conference on Artificial Intelligence, pages
+      3609­3615, 2017.
+
+                                                                                4405
+

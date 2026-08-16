@@ -1,0 +1,195 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+System Architecture
+Get Started
+Join a Group
+Account Creation
+Two-Factor Authentication
+Setup
+SSH & Login Node Usage
+Intracluster SSH Keys
+SSH Port Forwarding
+X11 Forwarding
+Storage
+Start Here
+Storage on Klone
+Compute
+Start Here
+Scheduling Jobs
+Using Idle Resources
+Resource Monitoring
+GPUs
+Start Here
+NVIDIA NGC Containers
+Using Ollama on Hyak
+Tillicum
+System Architecture
+Get Started
+Slurm
+Monitoring Usage
+Software Environment
+Storage
+Open OnDemand
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Start Here
+Ego4d & Ego-Exo4D
+Epic Kitchens
+FineWeb-Edu
+ImageNet
+Kinetics
+Olmo-mix-1124
+TabLib
+TCGA
+The Pile
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Hyak KloneGPUsStart Here
+Start Here
+GPUs offer significant performance enhancements for computationally intensive tasks. GPU cores are designed for parallel computing, making them a useful tool for training machine learning models, molecular dynamics simulations, and data mining. Unlike CPUs which excel at sequential tasks, GPUs can handle large numbers of simultaneous operations.
+
+GPU Jobs
+You can view the available GPUs on Hyak with the sinfo -s command. To view which GPUs are available on the ckpt partition, use:
+
+sinfo -p ckpt-all -O nodehost,cpusstate,freemem,gres,gresused -S nodehost | grep -v null
+
+GPU Jobs on Checkpoint
+A GPU job can be requested from ckpt by specifying the type and number of GPUs to allocate with the tag --gpus-per-node:
+
+salloc --partition=ckpt-all --gpus-per-node=2080ti:1 --mem=10G --time=2:00:00 
+
+GPU Jobs on a Specific GPU Partition
+If you have a GPU partition, you can start an interactive session on a GPU node by using the following command:
+
+salloc --account=account --partition=gpu-rtx6k --gpus=1 --mem=10G --time=2:00:00
+# Replace the account and partition flags to match your account and partitions.
+
+If you are unsure if your accounts have GPU partitions, use the hyakalloc command to see all of your available resources. A detailed walkthrough for requesting a GPU job can be found HERE.
+
+GPU Types on Hyak
+You now know how to view all GPUs supported on Hyak with the sinfo -s command. Additional information about each GPU is listed below:
+
+L40 and L40s: 48GB of GDDR6 memory per GPU card
+
+A40: 48GB of GDDR6 memory per GPU card
+
+2080 Ti: 11GB of GDDR6 memory per GPU card
+
+Titan: 24GB of GDDR6 memory per GPU card
+
+RTX6k: 48GB of GDDR6 memory per GPU card
+
+A100: 40GB of HBM2 memory per GPU card
+
+P100: 16GB of HBM2 memory per GPU card
+
+The next section is aimed to provide additional context for GPUs and NVIDIA NGC containers used to train LLMs.
+
+Previous
+Resource Monitoring
+Next
+NVIDIA NGC Containers
+GPU Jobs
+GPU Jobs on Checkpoint
+GPU Jobs on a Specific GPU Partition
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle

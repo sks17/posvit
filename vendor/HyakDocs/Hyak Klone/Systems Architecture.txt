@@ -1,0 +1,169 @@
+Skip to main content
+Hyak Logo
+Research Computing Documentation
+Pricing
+Docs
+Learn
+Events
+Blog
+
+Search Ctrl+K
+Home
+Hyak Klone
+System Architecture
+Get Started
+Join a Group
+Account Creation
+Two-Factor Authentication
+Setup
+SSH & Login Node Usage
+Intracluster SSH Keys
+SSH Port Forwarding
+X11 Forwarding
+Storage
+Start Here
+Storage on Klone
+Compute
+Start Here
+Scheduling Jobs
+Using Idle Resources
+Resource Monitoring
+GPUs
+Start Here
+NVIDIA NGC Containers
+Using Ollama on Hyak
+Tillicum
+System Architecture
+Get Started
+Slurm
+Monitoring Usage
+Software Environment
+Storage
+Open OnDemand
+Kopah S3 Storage
+Kopah Information
+GUI Usage
+CLI Usage
+Programmatic Usage
+Lolo Tape Archive
+Lolo Information
+Lolo Usage
+Data Transfer
+scp & rsync
+Cyberduck
+Globus
+Data Commons
+Start Here
+Ego4d & Ego-Exo4D
+Epic Kitchens
+FineWeb-Edu
+ImageNet
+Kinetics
+Olmo-mix-1124
+TabLib
+TCGA
+The Pile
+Open OnDemand
+Start Here
+Scheduling Jobs
+MATLAB
+Jupyter
+VS Code
+Rstudio
+Tools & Software
+Start Here
+Modules
+Compilers
+Containers
+Squash Fuse
+Modules with Containers
+DMTCP (Checkpointing)
+R and Rstudio
+Python
+Jupyter Notebooks
+MATLAB
+Mathematica
+Vs Code
+Using VS Code on Hyak
+VS Code via Code-Server
+VS Code via ProxyJump
+Tutorials
+Linux Basics
+Syllabus
+Containers
+Syllabus
+Introduction
+Pulling Containers
+Building Containers
+Slurm
+Syllabus
+Scheduling Jobs
+Job Arrays
+Advanced Slurm
+Syllabus
+Set Up
+Interactive and Batch Jobs
+Parallel Computing
+Parameter Sweep
+Jupyter Notebooks
+Syllabus
+Getting Started
+Building a Container
+Flexible Connections
+Working in the Overlay
+Slurm Job & Port Forwarding
+Start Up Sequence
+Jupyter in VS Code
+Interactive Mode
+Additional Resources
+External Resources
+FAQ
+Glossary
+Contribution Guides
+Pull Requests
+Markdown Guide
+Linking Markdown to Docusaurus
+Powered by MDX
+Hyak KloneSystem Architecture
+Hyak System Architecture
+Hyak is part of the University of Washington's cyberinfrastructure plan to support world-class research in every department. Hyak is an ecosystem of high-performance compute (HPC) clusters and supporting infrastructure (e.g., data management, computational training, scientific consulting). Acknowledging our Pacific Northwest heritage, Hyak means "fast" in Chinook jargon. Counting 1, 2, and 3 translates to "ikt", "mox", and "klone" in this local trading language. The numbers are cluster names corresponding to the generation of Hyak cluster deployed. We are currently on the 3rd generation cluster for Hyak.
+
+1. ikt
+2. mox
+3. klone
+Klone cluster image
+Component	Details
+Cluster	klone
+Service	January 2021 — Present
+OS	Rocky 8
+Compute	44,184 CPU cores [AMD Genoa, Intel Cascade Lake, Intel Ice Lake]
+Accelerators	954 GPU cards [Turing, Ampere, Hopper]
+Interconnect	100 Gbps [HDR100 Infiniband]
+Topology	3:1 blocking 2-layer fat tree
+Storage	2.7 PB GPFS
+Namesake	Klone = 3 in Chinook jargon. Current active Hyak cluster.
+Previous
+Home
+Next
+Join a Group
+Research Computing
+Home
+Docs
+Free Student Hyak Account
+Cloud Credits for Students
+Research Computing Services
+UWIT Home
+Sponsors
+College of Arts & Sciences
+College of Engineering
+College of the Environment
+School of Medicine
+UW Bothell
+UW Tacoma
+Contact
+E-mail
+Help Desk
+Mailing List
+Slack
+Github
+Made with ❤️ in Seattle
