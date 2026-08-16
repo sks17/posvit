@@ -1,6 +1,6 @@
 # Positional Information Causally Constrains Background Shortcut Reliance in Vision Transformers
 
-Scaling the positional signal of eight frozen, identically trained Vision Transformers
+Changing; in particular, scaling the positional signal of eight frozen, identically trained Vision Transformers
 shows that attenuating positional information monotonically raises background-shortcut
 reliance, that the encoding scheme does not matter, and that the effect is specific to
 spatial information loss rather than generic degradation.
