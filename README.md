@@ -5,7 +5,7 @@ shows that attenuating positional information monotonically raises background-sh
 reliance, that the encoding scheme does not matter, and that the effect is specific to
 spatial information loss rather than generic degradation.
 
-**Paper:** [ ]  ·  **License:** [MIT](LICENSE)  ·  **Provenance and limitations:** [docs/PROVENANCE.md](docs/PROVENANCE.md)
+**Preprint:** [Zenodo](https://zenodo.org/records/21971017)  ·  **DOI:** [10.5281/zenodo.21971017](https://doi.org/10.5281/zenodo.21971017)  ·  **License:** [MIT](LICENSE)  ·  **Provenance and limitations:** [docs/PROVENANCE.md](docs/PROVENANCE.md)
 
 ---
 
@@ -91,7 +91,9 @@ Known open questions about method disclosure and artifact provenance are listed 
 ## Citation
 
 ```
-
+Saksham Singh. (2026). Does Positional Information Causally Constrains Background
+Shortcut Reliance in Vision Transformer Models (Version 1). Zenodo.
+https://doi.org/10.5281/zenodo.21971017
 ```
 
 ## Acknowledgements

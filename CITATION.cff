@@ -11,8 +11,8 @@ authors:
   - family-names: Singh
     given-names: Saksham
 license: MIT
-repository-code: ""
-url: ""
+repository-code: "https://github.com/sks17/posvit"
+url: "https://zenodo.org/records/21971017"
 version: "0.1.0"
 keywords:
   - vision transformers
@@ -20,13 +20,15 @@ keywords:
   - spurious correlation
   - background bias
   - ImageNet-9
-# Populated on publication.
 preferred-citation:
   type: article
   title: "Positional Information Causally Constrains Background Shortcut Reliance in Vision Transformers"
   authors:
     - family-names: Singh
       given-names: Saksham
-  year: ""
-  journal: ""
-  doi: ""
+  year: 2026
+  publisher:
+    name: Zenodo
+  doi: "10.5281/zenodo.21971017"
+  url: "https://zenodo.org/records/21971017"
+  version: "1"
